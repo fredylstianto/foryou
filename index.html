@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>???</title>
+    <meta name="language" content="zh-CN">
+    <meta name="github" content="https://github.com/sun0225SUN/Awesome-Love-Code">
+    <meta name="describe" content="收集不易，您的star是我坚持的动力，同时也欢迎各位PR哦! ">
+    <!-- Penting untuk tampilan mobile & tablet -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image/x-icon"
+        href="https://cdn.jsdelivr.net/gh/sun0225SUN/photos/img/20210715233345.png">
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+
+        canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .namebox {
+            color: #ff5ba5;
+            position: absolute;
+            z-index: 9999;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            -moz-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -o-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            transition: 1s;
+            text-align: center;
+            opacity: 0;
+            /* disembunyikan dulu, nanti dimunculkan oleh heart.js */
+        }
+
+        .namebox h1 {
+            margin: 0 auto;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            /* responsif */
+            font-size: clamp(24px, 5vw, 36px);
+        }
+
+        #love-timer {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            margin-top: 10px;
+            font-size: clamp(14px, 3.2vw, 18px);
+        }
+
+        /* Popup "Tap to Start" */
+        .start-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.4s ease;
+        }
+
+        .start-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .start-dialog {
+            padding: 24px 28px;
+            max-width: 320px;
+            width: 80%;
+            max-height: 80vh;
+            background: rgba(20, 20, 20, 0.95);
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            overflow-y: auto;
+        }
+
+        .start-title {
+            margin: 0 0 8px;
+            font-size: clamp(18px, 5vw, 22px);
+            color: #ff5ba5;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .start-subtitle {
+            margin: 0 0 20px;
+            font-size: clamp(13px, 3.5vw, 16px);
+            color: #f5f5f5;
+            line-height: 1.5;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .start-button {
+            display: inline-block;
+            padding: 10px 22px;
+            font-size: clamp(14px, 4vw, 16px);
+            border-radius: 999px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #ff5ba5, #ff9f7b);
+            color: #fff;
+            box-shadow: 0 6px 15px rgba(255, 91, 165, 0.5);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
+            min-width: 160px;
+            min-height: 44px;
+        }
+
+        .start-button:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 3px 10px rgba(255, 91, 165, 0.4);
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: default;
+            box-shadow: none;
+        }
+
+        @media (max-width: 480px) {
+            .start-dialog {
+                padding: 16px 18px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <canvas id="canvas-matrix" style="position:absolute;width:100%;height:100%;z-index:8888"></canvas>
+    <canvas style="position:absolute;width:100%;height:100%;z-index:9999" class="canvas"></canvas>
+
+    <div class="overlay">
+        <div class="tabs">
+            <div class="tabs-labels">
+                <span class="tabs-label">Commands</span>
+                <span class="tabs-label">Info</span>
+                <span class="tabs-label">Share</span>
+            </div>
+
+            <div class="tabs-panels">
+                <ul class="tabs-panel commands">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="pinkboard" style="position:absolute;width:100%;height:100%;z-index:8888"></canvas>
+
+    <!-- matrix.js sebagai background, jalan sejak awal -->
+    <script src="js/matrix.js"></script>
+
+    <div class="namebox">
+        <h1 id="title-love">
+            Dyy&#10084;&#65039;Ryy
+        </h1>
+        <div id="love-timer">
+            0 hari 0 jam 0 menit 0 detik
+        </div>
+    </div>
+
+    <script>
+        // 29 Oktober 2025, 17:52 WIB (GMT+7)
+        const startTime = new Date('2025-10-29T17:52:00+07:00');
+
+        function updateLoveTimer() {
+            const now = new Date();
+            let diffSeconds = Math.floor((now - startTime) / 1000);
+
+            if (diffSeconds < 0) diffSeconds = 0;
+
+            const days = Math.floor(diffSeconds / (24 * 60 * 60));
+            diffSeconds %= 24 * 60 * 60;
+
+            const hours = Math.floor(diffSeconds / (60 * 60));
+            diffSeconds %= 60 * 60;
+
+            const minutes = Math.floor(diffSeconds / 60);
+            const seconds = diffSeconds % 60;
+
+            const timerEl = document.getElementById('love-timer');
+            if (timerEl) {
+                timerEl.textContent =
+                    days + ' hari ' +
+                    hours + ' jam ' +
+                    minutes + ' menit ' +
+                    seconds + ' detik';
+            }
+        }
+
+        updateLoveTimer();
+        setInterval(updateLoveTimer, 1000);
+    </script>
+
+    <!-- Popup Tap to Start -->
+    <div id="start-overlay" class="start-overlay">
+        <div class="start-dialog">
+            <!-- Sesuai keinginan Anda: menampilkan ??? -->
+            <h2 class="start-title">???</h2>
+            <p class="start-subtitle">
+                Please tap start button.<br>
+                :)
+            </p>
+            <button id="start-button" class="start-button">
+                Tap to Start
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio background music -->
+    <audio id="bg-music" loop>
+        <source src="dunno.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung pemutar audio.
+    </audio>
+
+    <script>
+        const bgMusic = document.getElementById('bg-music');
+        const startOverlay = document.getElementById('start-overlay');
+        const startButton = document.getElementById('start-button');
+        const namebox = document.querySelector('.namebox');
+
+        function loadScript(src) {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                document.body.appendChild(script);
+            });
+        }
+
+        // ✨ HANYA dipanggil oleh event dari heart.js
+        function revealLoveTitle() {
+            if (namebox) {
+                namebox.style.opacity = 1;
+            }
+        }
+
+        // Dengarkan sinyal dari heart.js
+        window.addEventListener('hearts-ready', revealLoveTitle);
+
+        async function startExperience() {
+            if (startButton) {
+                startButton.disabled = true;
+            }
+
+            // 1️⃣ Mulai musik (dalam konteks interaksi user)
+            if (bgMusic) {
+                try {
+                    await bgMusic.play();
+                } catch (err) {
+                    console.log("Audio gagal diputar:", err);
+                }
+            }
+
+            // 2️⃣ Load animasi utama setelah user klik
+            await loadScript("js/index.js");
+            await loadScript("js/heart.js");
+            // heart.js nanti yang memanggil event 'hearts-ready'
+
+            // 3️⃣ Tutup popup (TAPI namebox belum muncul sampai hearts-ready)
+            if (startOverlay) startOverlay.classList.add('hidden');
+        }
+
+        if (startButton) {
+            startButton.addEventListener('click', startExperience);
+        }
+
+        // Support keyboard (desktop) - Enter / Space
+        document.addEventListener('keydown', function (e) {
+            if (!startOverlay || startOverlay.classList.contains('hidden')) return;
+
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                startExperience();
+            }
+        });
+
+        // Pastikan seluruh canvas selalu set ke ukuran layar actual
+        function resizeCanvasToFullScreen() {
+            const cvsList = document.querySelectorAll('canvas');
+            cvsList.forEach(cvs => {
+                cvs.width = window.innerWidth;
+                cvs.height = window.innerHeight;
+            });
+        }
+
+        window.addEventListener('load', resizeCanvasToFullScreen);
+        window.addEventListener('resize', resizeCanvasToFullScreen);
+    </script>
+
+</body>
+
+</html>
