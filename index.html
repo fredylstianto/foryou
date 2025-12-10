@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Love Page</title>
+    <title>???</title>
     <meta name="language" content="zh-CN">
     <meta name="github" content="https://github.com/sun0225SUN/Awesome-Love-Code">
     <meta name="describe" content="收集不易，您的star是我坚持的动力，同时也欢迎各位PR哦! ">
@@ -38,6 +38,10 @@
             z-index: 9999;
             top: 50%;
             left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            -moz-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -o-transform: translate(-50%, -50%);
             transform: translate(-50%, -50%);
             transition: 1s;
             text-align: center;
@@ -47,6 +51,7 @@
         .namebox h1 {
             margin: 0 auto;
             font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+            /* responsif */
             font-size: clamp(24px, 5vw, 36px);
         }
 
@@ -56,6 +61,7 @@
             font-size: clamp(14px, 3.2vw, 18px);
         }
 
+        /* Popup "Tap to Start" */
         .start-overlay {
             position: fixed;
             inset: 0;
@@ -82,6 +88,7 @@
             text-align: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             overflow-y: auto;
         }
 
@@ -106,46 +113,97 @@
             font-size: clamp(14px, 4vw, 16px);
             border-radius: 999px;
             border: none;
+            outline: none;
             cursor: pointer;
             font-weight: 600;
+            letter-spacing: 0.5px;
             background: linear-gradient(135deg, #ff5ba5, #ff9f7b);
             color: #fff;
             box-shadow: 0 6px 15px rgba(255, 91, 165, 0.5);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
+            min-width: 160px;
+            min-height: 44px;
+        }
+
+        .start-button:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 3px 10px rgba(255, 91, 165, 0.4);
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: default;
+            box-shadow: none;
+        }
+
+        @media (max-width: 480px) {
+            .start-dialog {
+                padding: 16px 18px;
+            }
         }
     </style>
 
 </head>
 
 <body>
+    <canvas id="canvas-matrix" style="position:absolute;width:100%;height:100%;z-index:8888"></canvas>
+    <canvas style="position:absolute;width:100%;height:100%;z-index:9999" class="canvas"></canvas>
 
-    <canvas id="canvas-matrix"></canvas>
-    <canvas class="canvas"></canvas>
-    <canvas id="pinkboard"></canvas>
+    <div class="overlay">
+        <div class="tabs">
+            <div class="tabs-labels">
+                <span class="tabs-label">Commands</span>
+                <span class="tabs-label">Info</span>
+                <span class="tabs-label">Share</span>
+            </div>
+
+            <div class="tabs-panels">
+                <ul class="tabs-panel commands">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="pinkboard" style="position:absolute;width:100%;height:100%;z-index:8888"></canvas>
 
     <script src="js/matrix.js"></script>
 
     <div class="namebox">
-        <h1 id="title-love">Dyy❤️Ryy</h1>
-        <div id="love-timer">0 hari 0 jam 0 menit 0 detik</div>
+        <h1 id="title-love">
+            Dyy&#10084;&#65039;Ryy
+        </h1>
+        <div id="love-timer">
+            0 hari 0 jam 0 menit 0 detik
+        </div>
     </div>
 
     <script>
+        // 29 Oktober 2025, 17:52 WIB (GMT+7)
         const startTime = new Date('2025-10-29T17:52:00+07:00');
 
         function updateLoveTimer() {
             const now = new Date();
             let diffSeconds = Math.floor((now - startTime) / 1000);
+
             if (diffSeconds < 0) diffSeconds = 0;
 
-            const days = Math.floor(diffSeconds / 86400);
-            diffSeconds %= 86400;
-            const hours = Math.floor(diffSeconds / 3600);
-            diffSeconds %= 3600;
+            const days = Math.floor(diffSeconds / (24 * 60 * 60));
+            diffSeconds %= 24 * 60 * 60;
+
+            const hours = Math.floor(diffSeconds / (60 * 60));
+            diffSeconds %= 60 * 60;
+
             const minutes = Math.floor(diffSeconds / 60);
             const seconds = diffSeconds % 60;
 
-            document.getElementById('love-timer').textContent =
-                `${days} hari ${hours} jam ${minutes} menit ${seconds} detik`;
+            const timerEl = document.getElementById('love-timer');
+            if (timerEl) {
+                timerEl.textContent =
+                    days + ' hari ' +
+                    hours + ' jam ' +
+                    minutes + ' menit ' +
+                    seconds + ' detik';
+            }
         }
 
         updateLoveTimer();
@@ -154,14 +212,20 @@
 
     <div id="start-overlay" class="start-overlay">
         <div class="start-dialog">
-            <h2 class="start-title">Welcome</h2>
-            <p class="start-subtitle">Please tap start button.</p>
-            <button id="start-button" class="start-button">Tap to Start</button>
+            <h2 class="start-title">???</h2>
+            <p class="start-subtitle">
+                Please tap start button.<br>
+                :)
+            </p>
+            <button id="start-button" class="start-button">
+                Tap to Start
+            </button>
         </div>
     </div>
 
     <audio id="bg-music" loop>
         <source src="dunno.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung pemutar audio.
     </audio>
 
     <script>
@@ -171,7 +235,7 @@
         const namebox = document.querySelector('.namebox');
 
         function loadScript(src) {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 const script = document.createElement('script');
                 script.src = src;
                 script.onload = resolve;
@@ -180,23 +244,57 @@
         }
 
         function revealLoveTitle() {
-            namebox.style.opacity = 1;
+            if (namebox) {
+                namebox.style.opacity = 1;
+            }
         }
 
         window.addEventListener('hearts-ready', revealLoveTitle);
 
         async function startExperience() {
-            startButton.disabled = true;
-            try { await bgMusic.play(); } catch (e) { }
+            if (startButton) {
+                startButton.disabled = true;
+            }
+
+            if (bgMusic) {
+                try {
+                    await bgMusic.play();
+                } catch (err) {
+                    console.log("Audio gagal diputar:", err);
+                }
+            }
 
             await loadScript("js/index.js");
             await loadScript("js/heart.js");
 
-            startOverlay.classList.add('hidden');
+            if (startOverlay) startOverlay.classList.add('hidden');
         }
 
-        startButton.addEventListener('click', startExperience);
+        if (startButton) {
+            startButton.addEventListener('click', startExperience);
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (!startOverlay || startOverlay.classList.contains('hidden')) return;
+
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                startExperience();
+            }
+        });
+
+        function resizeCanvasToFullScreen() {
+            const cvsList = document.querySelectorAll('canvas');
+            cvsList.forEach(cvs => {
+                cvs.width = window.innerWidth;
+                cvs.height = window.innerHeight;
+            });
+        }
+
+        window.addEventListener('load', resizeCanvasToFullScreen);
+        window.addEventListener('resize', resizeCanvasToFullScreen);
     </script>
 
 </body>
+
 </html>
