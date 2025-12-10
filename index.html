@@ -61,6 +61,12 @@
             font-size: clamp(14px, 3.2vw, 18px);
         }
 
+        #countdown-2025 {
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+            margin-top: 6px;
+            font-size: clamp(14px, 3vw, 17px);
+        }
+
         /* Popup "Tap to Start" */
         .start-overlay {
             position: fixed;
@@ -175,6 +181,9 @@
         <div id="love-timer">
             0 hari 0 jam 0 menit 0 detik
         </div>
+        <div id="countdown-2025">
+        Menuju 27 Desember 2025: 0 hari lagi
+        </div>
     </div>
 
     <script>
@@ -208,6 +217,25 @@
 
         updateLoveTimer();
         setInterval(updateLoveTimer, 1000);
+
+            const targetDate2025 = new Date('2025-12-27T00:00:00+07:00');
+
+    function updateCountdown2025() {
+        const now = new Date();
+        let diffTime = targetDate2025 - now;
+
+        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) diffDays = 0;
+
+        const countdownEl = document.getElementById('countdown-2025');
+        if (countdownEl) {
+            countdownEl.textContent =
+                'Menuju 27 Desember 2025: ' + diffDays + ' hari lagi';
+        }
+    }
+
+    updateCountdown2025();
+    setInterval(updateCountdown2025, 60 * 60 * 1000);
     </script>
 
     <div id="start-overlay" class="start-overlay">
