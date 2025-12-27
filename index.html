@@ -184,7 +184,7 @@
             0 hari 0 jam 0 menit 0 detik
         </div>
         <div  id="countdown-2025">
-        Otw ketemu: 0 jam 0 menit 0 detik
+        Otw meet: 0 jam 0 menit 0 detik
         </div>
     </div>
 
@@ -237,7 +237,7 @@ function updateCountdown2025() {
 
     // Jika waktu sudah tiba / lewat
     if (diffMs <= 0) {
-        countdownEl.textContent = "The day has comee ❤️";
+        countdownEl.textContent = "The day has come. ❤️";
         return;
     }
 
@@ -248,7 +248,7 @@ function updateCountdown2025() {
     const seconds = totalSeconds % 60;
 
     countdownEl.textContent =
-        "Otw ketemu: " +
+        "Otw meet: " +
         hours + " jam " +
         minutes + " menit " +
         seconds + " detik ";
