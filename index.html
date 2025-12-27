@@ -184,7 +184,7 @@
             0 hari 0 jam 0 menit 0 detik
         </div>
         <div  id="countdown-2025">
-        Otw ketemu: 0 jam lagi
+        Otw ketemu: 0 jam 0 menit 0 detik
         </div>
     </div>
 
@@ -223,7 +223,7 @@
 
             const targetDate2025 = new Date('2025-12-27T00:00:00+07:00');
 
-    function updateCountdown2025() {
+function updateCountdown2025() {
     const now = new Date();
 
     // Target jam 18:00 WIB hari ini
@@ -237,18 +237,26 @@
 
     // Jika waktu sudah tiba / lewat
     if (diffMs <= 0) {
-        countdownEl.textContent = "The day has comee";
+        countdownEl.textContent = "The day has comee ❤️";
         return;
     }
 
-    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+    const totalSeconds = Math.floor(diffMs / 1000);
 
-    countdownEl.textContent = "Otw ketemu: " + diffHours + " jam lagi";
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    countdownEl.textContent =
+        "Otw ketemu: " +
+        hours + " jam " +
+        minutes + " menit " +
+        seconds + " detik ";
 }
 
-// update langsung & tiap menit
+// update langsung & tiap detik
 updateCountdown2025();
-setInterval(updateCountdown2025, 60 * 1000);
+setInterval(updateCountdown2025, 1000);
     </script>
 
     <div id="start-overlay" class="start-overlay">
