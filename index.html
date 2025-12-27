@@ -183,8 +183,8 @@
         <div id="love-timer">
             0 hari 0 jam 0 menit 0 detik
         </div>
-        <div>
-        Otw ketemu: The day has comee, <3
+        <div  id="countdown-2025">
+        Otw ketemu: 0 jam lagi
         </div>
     </div>
 
@@ -224,21 +224,31 @@
             const targetDate2025 = new Date('2025-12-27T00:00:00+07:00');
 
     function updateCountdown2025() {
-        const now = new Date();
-        let diffTime = targetDate2025 - now;
+    const now = new Date();
 
-        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays < 0) diffDays = 0;
+    // Target jam 18:00 WIB hari ini
+    const target = new Date();
+    target.setHours(18, 0, 0, 0);
 
-        const countdownEl = document.getElementById('countdown-2025');
-        if (countdownEl) {
-            countdownEl.textContent =
-                'Otw ketemu: ' + diffDays + ' hari lagi';
-        }
+    const countdownEl = document.getElementById('countdown-2025');
+    if (!countdownEl) return;
+
+    let diffMs = target - now;
+
+    // Jika waktu sudah tiba / lewat
+    if (diffMs <= 0) {
+        countdownEl.textContent = "The day has comee";
+        return;
     }
 
-    updateCountdown2025();
-    setInterval(updateCountdown2025, 60 * 60 * 1000);
+    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+
+    countdownEl.textContent = "Otw ketemu: " + diffHours + " jam lagi";
+}
+
+// update langsung & tiap menit
+updateCountdown2025();
+setInterval(updateCountdown2025, 60 * 1000);
     </script>
 
     <div id="start-overlay" class="start-overlay">
