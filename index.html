@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Love</title>
+    <title>???</title>
     <meta name="language" content="zh-CN">
     <meta name="github" content="https://github.com/sun0225SUN/Awesome-Love-Code">
     <meta name="describe" content="Responsive love animation">
@@ -440,121 +440,7 @@
             });
         }
 
-        /*
-          Patch js/index.js dari index.html:
-          1. gap partikel lebih kecil di mobile
-          2. canvas pakai visualViewport
-          3. clone point diperbaiki
-          4. resize heart tidak menimpa window.onresize
-          5. action default memakai window.__LOVE_ACTION__
-        */
-        function patchIndexScript(source) {
-            let code = source;
-
-            code = code.replace(
-                /if \(i !== -1\) \{\s*S\.UI\.simulate\(decodeURI\(action\)\.substring\(i \+ 3\)\);\s*\} else \{\s*S\.UI\.simulate\("\|#countdown 3\|\|Hello\|Sheikaa\|My\|Love\?\|\|#rectangle\|"\);\s*\}/,
-                'S.UI.simulate(window.__LOVE_ACTION__ || (i !== -1 ? decodeURI(action).substring(i + 3) : "|#countdown 3||Hello|Sheikaa|My|Love?||#rectangle|"));'
-            );
-
-            code = code.replace(
-                /var gap = 13,/,
-                'var gap = (window.innerWidth <= 380 ? 6 : window.innerWidth <= 600 ? 7 : 13),'
-            );
-
-            code = code.replace(
-                /function fit\(\) \{\s*shapeCanvas\.width = Math\.floor\(window\.innerWidth \/ gap\) \* gap;\s*shapeCanvas\.height = Math\.floor\(window\.innerHeight \/ gap\) \* gap;/,
-                `function fit() {
-    gap = (window.innerWidth <= 380 ? 6 : window.innerWidth <= 600 ? 7 : 13);
-    var __vw = Math.floor((window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth);
-    var __vh = Math.floor((window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight);
-    shapeCanvas.width = Math.floor(__vw / gap) * gap;
-    shapeCanvas.height = Math.floor(__vh / gap) * gap;`
-            );
-
-            code = code.replace(
-                /canvas\.width = window\.innerWidth;\s*canvas\.height = window\.innerHeight;/,
-                `var __vw = Math.floor((window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth);
-      var __vh = Math.floor((window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight);
-      canvas.width = __vw;
-      canvas.height = __vh;`
-            );
-
-            code = code.replace(
-                /window\.addEventListener\('resize', fit\);/,
-                `window.addEventListener('resize', fit);
-    window.addEventListener('orientationchange', function () { setTimeout(fit, 250); });
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', fit);`
-            );
-
-            code = code.replace(
-                /x: this\.x,\s*y: this\.y,\s*z: this\.z,\s*a: this\.a,\s*h: this\.h/,
-                `x: this.p.x,
-      y: this.p.y,
-      z: this.p.z,
-      a: this.p.a,
-      h: this.p.h`
-            );
-
-            code = code.replace(
-                /window\.onresize = onResize;/,
-                `window.addEventListener('resize', onResize);
-        window.addEventListener('orientationchange', function () { setTimeout(onResize, 250); });
-        if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize);`
-            );
-
-            code += "\n//# sourceURL=js/index.patched.js\n";
-
-            return code;
-        }
-
-        /*
-          Load js/index.js dengan patch.
-          Catatan: ini paling aman kalau dibuka lewat server, GitHub Pages, Netlify, Vercel, atau Live Server VS Code.
-        */
-        async function loadPatchedIndexScript() {
-            try {
-                const response = await fetch("js/index.js", { cache: "no-cache" });
-
-                if (!response.ok) {
-                    throw new Error("Tidak bisa membaca js/index.js");
-                }
-
-                const originalCode = await response.text();
-                const patchedCode = patchIndexScript(originalCode);
-                const blob = new Blob([patchedCode], { type: "text/javascript" });
-                const blobUrl = URL.createObjectURL(blob);
-
-                await loadScript(blobUrl);
-
-                setTimeout(function () {
-                    URL.revokeObjectURL(blobUrl);
-                }, 3000);
-            } catch (err) {
-                console.warn("Patch responsive gagal, load js/index.js normal:", err);
-                await loadScript("js/index.js");
-            }
-        }
-
-        async function startExperience() {
-            if (hasStarted) return;
-            hasStarted = true;
-
-            resizeCanvasToFullScreen();
-
-            if (startButton) {
-                startButton.disabled = true;
-            }
-
-            if (bgMusic) {
-                try {
-                    bgMusic.currentTime = 0;
-                    await bgMusic.play();
-                } catch (err) {
-                    console.log("Audio gagal diputar:", err);
-                }
-            }
-
-            await loadPatchedIndexScript();
+            await loadScript("js/index.js");
             await loadScript("js/heart.js");
 
             resizeCanvasToFullScreen();
