@@ -53,8 +53,8 @@
         .layer-canvas {
             position: fixed;
             inset: 0;
-            width: var(--app-width);
-            height: var(--app-height);
+            width: var(--app-width) !important;
+            height: var(--app-height) !important;
             display: block;
             background: transparent;
         }
@@ -91,7 +91,7 @@
             margin: 0 auto;
             line-height: 1.15;
             font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-            font-size: clamp(24px, 7vw, 42px);
+            font-size: clamp(22px, 6.5vw, 42px);
             word-break: keep-all;
             overflow-wrap: normal;
         }
@@ -215,7 +215,7 @@
             }
 
             .namebox h1 {
-                font-size: clamp(24px, 8vw, 34px);
+                font-size: clamp(20px, 7.5vw, 32px);
             }
 
             .start-dialog {
@@ -229,7 +229,7 @@
             }
 
             .namebox h1 {
-                font-size: clamp(22px, 6vw, 30px);
+                font-size: clamp(18px, 6vw, 28px);
             }
 
             .start-dialog {
@@ -241,23 +241,20 @@
     <script>
         /*
           Responsive viewport helper.
-          Ini penting untuk mobile browser karena address bar bisa mengubah tinggi layar.
+          Mengikuti perubahan visualViewport secara dinamis mengatasi address bar mobile.
         */
         (function () {
             function getViewportSize() {
                 const vv = window.visualViewport;
                 const width = Math.max(1, Math.floor(vv && vv.width ? vv.width : window.innerWidth));
                 const height = Math.max(1, Math.floor(vv && vv.height ? vv.height : window.innerHeight));
-
                 return { width, height };
             }
 
             function setAppViewport() {
                 const size = getViewportSize();
-
                 document.documentElement.style.setProperty('--app-width', size.width + 'px');
                 document.documentElement.style.setProperty('--app-height', size.height + 'px');
-
                 window.__LOVE_VIEWPORT__ = size;
             }
 
@@ -268,7 +265,7 @@
 
             window.addEventListener('resize', setAppViewport, { passive: true });
             window.addEventListener('orientationchange', function () {
-                setTimeout(setAppViewport, 250);
+                setTimeout(setAppViewport, 300);
             }, { passive: true });
 
             if (window.visualViewport) {
@@ -279,27 +276,22 @@
 
         /*
           Teks default animasi.
-          Untuk mobile, sebaiknya per kata agar partikel huruf tidak terlalu kecil.
         */
         (function () {
             const defaultAction = "|#countdown 3||Hello|Sheikaa|My|Love?||#rectangle|";
 
             function normalizeAction(raw) {
                 if (!raw) return defaultAction;
-
                 const decoded = decodeURI(raw).trim();
-
                 if (decoded.indexOf('|') !== -1) {
                     return decoded;
                 }
-
                 const isMobile = window.innerWidth <= 600;
                 const words = decoded.split(/\s+/).filter(Boolean);
 
                 if (isMobile && words.length > 1) {
                     return "|#countdown 3||" + words.join("|") + "||#rectangle|";
                 }
-
                 return decoded;
             }
 
@@ -325,7 +317,6 @@
                 <span class="tabs-label">Info</span>
                 <span class="tabs-label">Share</span>
             </div>
-
             <div class="tabs-panels">
                 <ul class="tabs-panel commands"></ul>
             </div>
@@ -382,7 +373,6 @@
             if (typeof window.__getLoveViewport === 'function') {
                 return window.__getLoveViewport();
             }
-
             const vv = window.visualViewport;
             return {
                 width: Math.max(1, Math.floor(vv && vv.width ? vv.width : window.innerWidth)),
@@ -390,6 +380,10 @@
             };
         }
 
+        /*
+           Fungsi resize murni responsif tanpa merusak ukuran internal canvas 
+           yang diatur oleh script.js (Shape Shifter)
+        */
         function resizeCanvasToFullScreen() {
             if (typeof window.__setLoveViewport === 'function') {
                 window.__setLoveViewport();
@@ -397,19 +391,33 @@
 
             const size = getViewportSize();
             const cvsList = document.querySelectorAll('canvas');
+            
+            // Mencegah pergeseran skala dengan mengunci pixel rasio perangkat (Retina Display Support)
+            const dpr = window.devicePixelRatio || 1;
 
             cvsList.forEach(function (cvs) {
+                // Setel ukuran CSS agar sesuai dengan tata letak layar
                 cvs.style.width = size.width + 'px';
                 cvs.style.height = size.height + 'px';
-                cvs.width = size.width;
-                cvs.height = size.height;
+                
+                // Setel resolusi internal kanvas agar sejernih laptop
+                cvs.width = Math.floor(size.width * dpr);
+                cvs.height = Math.floor(size.height * dpr);
+
+                // Skala konteks jika diperlukan (Opsional menjaga line-drawing agar tidak terdistorsi)
+                if (cvs.getContext) {
+                    const ctx = cvs.getContext('2d');
+                    if (dpr > 1) {
+                       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    }
+                }
             });
         }
 
         window.addEventListener('load', resizeCanvasToFullScreen, { passive: true });
         window.addEventListener('resize', resizeCanvasToFullScreen, { passive: true });
         window.addEventListener('orientationchange', function () {
-            setTimeout(resizeCanvasToFullScreen, 250);
+            setTimeout(resizeCanvasToFullScreen, 300);
         }, { passive: true });
 
         if (window.visualViewport) {
@@ -427,9 +435,6 @@
 
         window.addEventListener('hearts-ready', revealLoveTitle);
 
-        /*
-          Load script biasa.
-        */
         function loadScript(src) {
             return new Promise(function (resolve, reject) {
                 const script = document.createElement('script');
@@ -440,7 +445,7 @@
             });
         }
         
-            async function startExperience() {
+        async function startExperience() {
             if (hasStarted) return;
             hasStarted = true;
 
@@ -458,7 +463,6 @@
                     console.log("Audio gagal diputar:", err);
                 }
             }
-
 
             await loadScript("js/index.js");
             await loadScript("js/heart.js");
@@ -527,7 +531,6 @@
         */
         function updateCountdown2025() {
             const now = new Date();
-
             const target = new Date();
             target.setHours(18, 0, 0, 0);
 
@@ -542,7 +545,6 @@
             }
 
             const totalSeconds = Math.floor(diffMs / 1000);
-
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
@@ -557,7 +559,6 @@
         updateCountdown2025();
         setInterval(updateCountdown2025, 1000);
     </script>
-
 </body>
 
 </html>
