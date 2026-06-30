@@ -937,7 +937,7 @@ switchShape: function (n, fast) {
 
     // Kalau fast = true, dipakai untuk countdown.
     // Jadi dot langsung morph ke angka berikutnya tanpa efek nyebar.
-    dots[d].e = fast ? 0.35 : (dots[d].s ? 0.14 : 0.11);
+    dots[d].e = fast ? 0.25 : (dots[d].s ? 0.14 : 0.11);
 
     if (!fast) {
       if (dots[d].s) {
