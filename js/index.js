@@ -1,4 +1,5 @@
 /*
+
   Shape Shifter
   =============
   A canvas experiment by Kenneth Cachia
@@ -7,6 +8,7 @@
   Updated code
   ------------
   https://github.com/kennethcachia/Shape-Shifter
+
 */
 
 var S = {
@@ -34,6 +36,7 @@ var S = {
     });
   }
 };
+
 
 S.Drawing = (function () {
   var canvas,
@@ -176,6 +179,7 @@ S.UI = (function () {
           value = (value && value.length === 2) ? value : [maxShapeSize, maxShapeSize / 2];
 
           S.Shape.switchShape(S.ShapeBuilder.rectangle(Math.min(maxShapeSize, parseInt(value[0])), Math.min(maxShapeSize, parseInt(value[1]))));
+
           break;
 
         case 'circle':
@@ -208,12 +212,9 @@ S.UI = (function () {
 
   function bindEvents() {
     document.body.addEventListener('keydown', function (e) {
-      // input.focus();
-
       if (e.keyCode === 13) {
         firstAction = false;
         reset();
-        // performAction(input.value);
       }
     });
 
@@ -304,13 +305,8 @@ S.Color.prototype = {
 
 
 S.Dot = function (x, y) {
-  // Logic agar titik mengecil di HP, dan membesar di laptop
-  var dotSize = 5;
-  if (window.innerWidth < 450) {
-      dotSize = 1.5;
-  } else if (window.innerWidth < 768) {
-      dotSize = 2.5;
-  }
+  // Ukuran titik sepenuhnya responsif (Dinamic proporsional)
+  var dotSize = Math.max(1.5, window.innerWidth / 260); 
 
   this.p = new S.Point({
     x: x,
@@ -430,14 +426,8 @@ S.ShapeBuilder = (function () {
     fontFamily = 'Avenir, Helvetica Neue, Helvetica, Arial, sans-serif';
 
   function fit() {
-    // Logika agar gap partikel di-render merapat/padat di layar HP
-    if (window.innerWidth < 450) {
-        gap = 4;
-    } else if (window.innerWidth < 768) {
-        gap = 6;
-    } else {
-        gap = 13;
-    }
+    // Gap secara dinamis menghitung rasio ukuran layar agar tulisan solid
+    gap = Math.max(3, Math.floor(window.innerWidth / 100));
 
     shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
     shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
@@ -528,12 +518,10 @@ S.ShapeBuilder = (function () {
 
     letter: function (l) {
       var s = 0;
-      // Gunakan spasi penuh 95% layar untuk teks panjang di mobile
-      var widthScale = window.innerWidth < 768 ? 0.95 : 0.8;
 
       setFontSize(fontSize);
       s = Math.min(fontSize,
-        (shapeCanvas.width / shapeContext.measureText(l).width) * widthScale * fontSize,
+        (shapeCanvas.width / shapeContext.measureText(l).width) * 0.8 * fontSize,
         (shapeCanvas.height / fontSize) * (isNumber(l) ? 1 : 0.45) * fontSize);
       setFontSize(s);
 
@@ -739,7 +727,6 @@ S.ShapeBuilder = (function () {
           context.closePath();
           // create the fill
           context.fillStyle = '#ff30c5';
-          // context.fillStyle = '#ea80b0';
           context.fill();
           // create the image
           var image = new Image();
@@ -780,7 +767,7 @@ S.ShapeBuilder = (function () {
         }, 10);
       })(document.getElementById('pinkboard'));
 
-      // Cegah error saat function 'rectangle' tidak mengembalikan apa-apa
+      // Cegah error
       return { dots: [], w: 0, h: 0 };
     }
   };
@@ -819,13 +806,8 @@ S.Shape = (function () {
       var size,
         a = S.Drawing.getArea();
 
-      // Logika mengecilkan titik di HP agar tulisan merapat & jelas
-      var dotSizeTarget = 5;
-      if (window.innerWidth < 450) {
-          dotSizeTarget = 1.5;
-      } else if (window.innerWidth < 768) {
-          dotSizeTarget = 2.5;
-      }
+      // Memastikan ukuran titik pada animasi transisi juga mengikuti proporsi responsif
+      var currentDotSize = Math.max(1.5, window.innerWidth / 260);
 
       width = n.w;
       height = n.h;
@@ -864,7 +846,7 @@ S.Shape = (function () {
           x: n.dots[i].x + cx,
           y: n.dots[i].y + cy,
           a: 1,
-          z: dotSizeTarget, // Menggunakan ukuran titik responsif di sini
+          z: currentDotSize, // Ukuran partikel tersinkronisasi sempurna
           h: 0
         }));
 
