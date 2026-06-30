@@ -1,5 +1,4 @@
 /*
-
   Shape Shifter
   =============
   A canvas experiment by Kenneth Cachia
@@ -8,9 +7,7 @@
   Updated code
   ------------
   https://github.com/kennethcachia/Shape-Shifter
-
 */
-
 
 var S = {
   init: function () {
@@ -38,19 +35,18 @@ var S = {
   }
 };
 
-
 S.Drawing = (function () {
   var canvas,
     context,
-    renderFn
-  requestFrame = window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    function (callback) {
-      window.setTimeout(callback, 1000 / 60);
-    };
+    renderFn,
+    requestFrame = window.requestAnimationFrame ||
+      window.webkitRequestAnimationFrame ||
+      window.mozRequestAnimationFrame ||
+      window.oRequestAnimationFrame ||
+      window.msRequestAnimationFrame ||
+      function (callback) {
+        window.setTimeout(callback, 1000 / 60);
+      };
 
   return {
     init: function (el) {
@@ -97,7 +93,7 @@ S.Drawing = (function () {
 S.UI = (function () {
   var canvas = document.querySelector('.canvas'),
     interval,
-    isTouch = false, //('ontouchstart' in window || navigator.msMaxTouchPoints),
+    isTouch = false, 
     currentAction,
     resizeTimer,
     time,
@@ -148,13 +144,9 @@ S.UI = (function () {
 
   function performAction(value) {
     var action,
-      value,
       current;
 
-    // overlay.classList.remove('overlay--visible');
     sequence = typeof (value) === 'object' ? value : sequence.concat(value.split('|'));
-    // input.value = '';
-    // checkInputWidth();
 
     timedAction(function (index) {
       current = sequence.shift();
@@ -184,7 +176,6 @@ S.UI = (function () {
           value = (value && value.length === 2) ? value : [maxShapeSize, maxShapeSize / 2];
 
           S.Shape.switchShape(S.ShapeBuilder.rectangle(Math.min(maxShapeSize, parseInt(value[0])), Math.min(maxShapeSize, parseInt(value[1]))));
-
           break;
 
         case 'circle':
@@ -215,84 +206,24 @@ S.UI = (function () {
     }, 2000, sequence.length);
   }
 
-  function checkInputWidth(e) {
-    if (input.value.length > 18) {
-      ui.classList.add('ui--wide');
-    } else {
-      ui.classList.remove('ui--wide');
-    }
-
-    if (firstAction && input.value.length > 0) {
-      ui.classList.add('ui--enter');
-    } else {
-      ui.classList.remove('ui--enter');
-    }
-  }
-
   function bindEvents() {
     document.body.addEventListener('keydown', function (e) {
-      input.focus();
+      // input.focus();
 
       if (e.keyCode === 13) {
         firstAction = false;
         reset();
-        performAction(input.value);
+        // performAction(input.value);
       }
     });
 
-    // input.addEventListener('input', checkInputWidth);
-    // input.addEventListener('change', checkInputWidth);
-    // input.addEventListener('focus', checkInputWidth);
-
-    // help.addEventListener('click', function (e) {
-    //   overlay.classList.toggle('overlay--visible');
-    //   overlay.classList.contains('overlay--visible') && reset(true);
-    // });
-
-    // commands.addEventListener('click', function (e) {
-    //   var el,
-    //       info,
-    //       demo,
-    //       tab,
-    //       active,
-    //       url;
-    //
-    //   if (e.target.classList.contains('commands-item')) {
-    //     el = e.target;
-    //   } else {
-    //     el = e.target.parentNode.classList.contains('commands-item') ? e.target.parentNode : e.target.parentNode.parentNode;
-    //   }
-    //
-    //   info = el && el.querySelector('.commands-item-info');
-    //   demo = el && info.getAttribute('data-demo');
-    //   url = el && info.getAttribute('data-url');
-    //
-    //   if (info) {
-    //     overlay.classList.remove('overlay--visible');
-    //
-    //     if (demo) {
-    //       input.value = demo;
-    //
-    //       if (isTouch) {
-    //         reset();
-    //         performAction(input.value);
-    //       } else {
-    //         input.focus();
-    //       }
-    //     } else if (url) {
-    //       //window.location = url;
-    //     }
-    //   }
-    // });
-
     canvas.addEventListener('click', function (e) {
-      overlay.classList.remove('overlay--visible');
+      // overlay.classList.remove('overlay--visible');
     });
   }
 
   function init() {
     bindEvents();
-    // input.focus();
     isTouch && document.body.classList.add('touch');
   }
 
@@ -314,11 +245,12 @@ S.UI.Tabs = (function () {
     panels = document.querySelectorAll('.tabs-panel');
 
   function activate(i) {
-    triggers[i].classList.add('tabs-label--active');
-    panels[i].classList.add('tabs-panel--active');
+    if(triggers[i]) triggers[i].classList.add('tabs-label--active');
+    if(panels[i]) panels[i].classList.add('tabs-panel--active');
   }
 
   function bindEvents() {
+    if(!labels) return;
     labels.addEventListener('click', function (e) {
       var el = e.target,
         index;
@@ -372,10 +304,18 @@ S.Color.prototype = {
 
 
 S.Dot = function (x, y) {
+  // Logic agar titik mengecil di HP, dan membesar di laptop
+  var dotSize = 5;
+  if (window.innerWidth < 450) {
+      dotSize = 1.5;
+  } else if (window.innerWidth < 768) {
+      dotSize = 2.5;
+  }
+
   this.p = new S.Point({
     x: x,
     y: y,
-    z: 5,
+    z: dotSize,
     a: 1,
     h: 0
   });
@@ -455,7 +395,7 @@ S.Dot.prototype = {
       }
     }
 
-    d = this.p.a - this.t.a;
+    var d = this.p.a - this.t.a;
     this.p.a = Math.max(0.1, this.p.a - (d * 0.05));
     d = this.p.z - this.t.z;
     this.p.z = Math.max(1, this.p.z - (d * 0.05));
@@ -490,6 +430,15 @@ S.ShapeBuilder = (function () {
     fontFamily = 'Avenir, Helvetica Neue, Helvetica, Arial, sans-serif';
 
   function fit() {
+    // Logika agar gap partikel di-render merapat/padat di layar HP
+    if (window.innerWidth < 450) {
+        gap = 4;
+    } else if (window.innerWidth < 768) {
+        gap = 6;
+    } else {
+        gap = 13;
+    }
+
     shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
     shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
     shapeContext.fillStyle = 'red';
@@ -498,9 +447,8 @@ S.ShapeBuilder = (function () {
   }
 
   function processCanvas() {
-    var pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
-    dots = [],
-      pixels,
+    var pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data,
+      dots = [],
       x = 0,
       y = 0,
       fx = shapeCanvas.width,
@@ -580,10 +528,12 @@ S.ShapeBuilder = (function () {
 
     letter: function (l) {
       var s = 0;
+      // Gunakan spasi penuh 95% layar untuk teks panjang di mobile
+      var widthScale = window.innerWidth < 768 ? 0.95 : 0.8;
 
       setFontSize(fontSize);
       s = Math.min(fontSize,
-        (shapeCanvas.width / shapeContext.measureText(l).width) * 0.8 * fontSize,
+        (shapeCanvas.width / shapeContext.measureText(l).width) * widthScale * fontSize,
         (shapeCanvas.height / fontSize) * (isNumber(l) ? 1 : 0.45) * fontSize);
       setFontSize(s);
 
@@ -748,6 +698,7 @@ S.ShapeBuilder = (function () {
       
       */
       (function (canvas) {
+        if (!canvas) return;
         var context = canvas.getContext('2d'),
           particles = new ParticlePool(settings.particles.length),
           particleRate = settings.particles.length / settings.particles.duration, // particles/sec
@@ -829,6 +780,8 @@ S.ShapeBuilder = (function () {
         }, 10);
       })(document.getElementById('pinkboard'));
 
+      // Cegah error saat function 'rectangle' tidak mengembalikan apa-apa
+      return { dots: [], w: 0, h: 0 };
     }
   };
 }());
@@ -865,6 +818,14 @@ S.Shape = (function () {
     switchShape: function (n, fast) {
       var size,
         a = S.Drawing.getArea();
+
+      // Logika mengecilkan titik di HP agar tulisan merapat & jelas
+      var dotSizeTarget = 5;
+      if (window.innerWidth < 450) {
+          dotSizeTarget = 1.5;
+      } else if (window.innerWidth < 768) {
+          dotSizeTarget = 2.5;
+      }
 
       width = n.w;
       height = n.h;
@@ -903,7 +864,7 @@ S.Shape = (function () {
           x: n.dots[i].x + cx,
           y: n.dots[i].y + cy,
           a: 1,
-          z: 5,
+          z: dotSizeTarget, // Menggunakan ukuran titik responsif di sini
           h: 0
         }));
 
@@ -924,7 +885,7 @@ S.Shape = (function () {
           dots[i].move(new S.Point({
             x: Math.random() * a.w,
             y: Math.random() * a.h,
-            a: 0.3, //.4
+            a: 0.3,
             z: Math.random() * 4,
             h: 0
           }));
@@ -939,6 +900,5 @@ S.Shape = (function () {
     }
   }
 }());
-
 
 S.init();
