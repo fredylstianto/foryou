@@ -849,6 +849,7 @@ S.Shape = (function () {
   }
 
   return {
+    compensate: compensate,
     shuffleIdle: function () {
       var a = S.Drawing.getArea();
 
