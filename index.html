@@ -384,34 +384,27 @@
            Fungsi resize murni responsif tanpa merusak ukuran internal canvas 
            yang diatur oleh script.js (Shape Shifter)
         */
-        function resizeCanvasToFullScreen() {
+       function resizeCanvasToFullScreen() {
             if (typeof window.__setLoveViewport === 'function') {
                 window.__setLoveViewport();
             }
 
             const size = getViewportSize();
             const cvsList = document.querySelectorAll('canvas');
-            
-            // Mencegah pergeseran skala dengan mengunci pixel rasio perangkat (Retina Display Support)
-            const dpr = window.devicePixelRatio || 1;
 
             cvsList.forEach(function (cvs) {
-                // Setel ukuran CSS agar sesuai dengan tata letak layar
+                // Memastikan ukuran fisik kanvas mengikuti layar tanpa konflik
                 cvs.style.width = size.width + 'px';
                 cvs.style.height = size.height + 'px';
                 
-                // Setel resolusi internal kanvas agar sejernih laptop
-                cvs.width = Math.floor(size.width * dpr);
-                cvs.height = Math.floor(size.height * dpr);
-
-                // Skala konteks jika diperlukan (Opsional menjaga line-drawing agar tidak terdistorsi)
-                if (cvs.getContext) {
-                    const ctx = cvs.getContext('2d');
-                    if (dpr > 1) {
-                       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                    }
-                }
+                // Setel resolusi internal agar tidak pecah
+                cvs.width = size.width;
+                cvs.height = size.height;
             });
+            // Memberitahu script.js untuk menghitung ulang posisi tengah (centering)
+            if (window.S && window.S.Shape && typeof window.S.Shape.compensate === 'function') {
+                window.S.Shape.compensate();
+            }
         }
 
         window.addEventListener('load', resizeCanvasToFullScreen, { passive: true });
