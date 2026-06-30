@@ -31,18 +31,21 @@ var S = {
 
     S.Drawing.loop(function () {
       S.Shape.render();
-      if (S.isAnimationComplete) {
-        startHeartAnimation();
-      }
+      if (S.isAnimationComplete && typeof startHeartAnimation === 'function') {
+  startHeartAnimation();
+}
     });
   }
 };
 
 
 S.Drawing = (function () {
-  var canvas,
-    context,
-    renderFn
+  var canvas,
+    context,
+    renderFn,
+    width = 0,
+    height = 0,
+    dpr = 1,
   requestFrame = window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
@@ -70,18 +73,28 @@ S.Drawing = (function () {
       requestFrame.call(window, this.loop.bind(this));
     },
 
-    adjustCanvas: function () {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    },
+adjustCanvas: function () {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    clearFrame: function () {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-    },
+  width = window.innerWidth;
+  height = window.innerHeight;
 
-    getArea: function () {
-      return { w: canvas.width, h: canvas.height };
-    },
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+},
+
+clearFrame: function () {
+  context.clearRect(0, 0, width, height);
+},
+
+getArea: function () {
+  return { w: width, h: height };
+},
 
     drawCircle: function (p, c) {
       context.fillStyle = c.render();
@@ -96,6 +109,7 @@ S.Drawing = (function () {
 
 S.UI = (function () {
   var canvas = document.querySelector('.canvas'),
+    overlay = document.querySelector('.overlay'),
     interval,
     isTouch = false, //('ontouchstart' in window || navigator.msMaxTouchPoints),
     currentAction,
@@ -180,12 +194,15 @@ S.UI = (function () {
           break;
 
         case 'rectangle':
-          value = value && value.split('x');
-          value = (value && value.length === 2) ? value : [maxShapeSize, maxShapeSize / 2];
+  value = value && value.split('x');
+  value = (value && value.length === 2) ? value : [maxShapeSize, maxShapeSize / 2];
 
-          S.Shape.switchShape(S.ShapeBuilder.rectangle(Math.min(maxShapeSize, parseInt(value[0])), Math.min(maxShapeSize, parseInt(value[1]))));
+  S.ShapeBuilder.rectangle(
+    Math.min(maxShapeSize, parseInt(value[0])),
+    Math.min(maxShapeSize, parseInt(value[1]))
+  );
 
-          break;
+  break;
 
         case 'circle':
           value = parseInt(value) || maxShapeSize;
@@ -286,8 +303,10 @@ S.UI = (function () {
     // });
 
     canvas.addEventListener('click', function (e) {
-      overlay.classList.remove('overlay--visible');
-    });
+  if (overlay) {
+    overlay.classList.remove('overlay--visible');
+  }
+});
   }
 
   function init() {
@@ -483,19 +502,39 @@ S.Dot.prototype = {
 
 
 S.ShapeBuilder = (function () {
-  var gap = 13,
-    shapeCanvas = document.createElement('canvas'),
-    shapeContext = shapeCanvas.getContext('2d'),
-    fontSize = 500,
-    fontFamily = 'Avenir, Helvetica Neue, Helvetica, Arial, sans-serif';
+  var gap = 13,
+    shapeCanvas = document.createElement('canvas'),
+    shapeContext = shapeCanvas.getContext('2d'),
+    fontSize = 500,
+    fontFamily = 'Avenir, Helvetica Neue, Helvetica, Arial, sans-serif';
 
-  function fit() {
-    shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
-    shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
-    shapeContext.fillStyle = 'red';
-    shapeContext.textBaseline = 'middle';
-    shapeContext.textAlign = 'center';
-  }
+  function isMobileScreen() {
+    return window.innerWidth <= 768;
+  }
+
+  function getResponsiveGap() {
+    if (window.innerWidth <= 480) return 6;
+    if (window.innerWidth <= 768) return 8;
+    return 13;
+  }
+
+  function getResponsiveFontSize() {
+  if (window.innerWidth <= 480) return 300;
+  if (window.innerWidth <= 768) return 380;
+  return 500;
+}
+
+function fit() {
+  gap = getResponsiveGap();
+  fontSize = getResponsiveFontSize();
+
+  shapeCanvas.width = Math.floor(window.innerWidth / gap) * gap;
+  shapeCanvas.height = Math.floor(window.innerHeight / gap) * gap;
+
+  shapeContext.fillStyle = 'red';
+  shapeContext.textBaseline = 'middle';
+  shapeContext.textAlign = 'center';
+}
 
   function processCanvas() {
     var pixels = shapeContext.getImageData(0, 0, shapeCanvas.width, shapeCanvas.height).data;
@@ -599,15 +638,17 @@ S.ShapeBuilder = (function () {
       for (var i = 0; i < elements.length; i++) {
         elements[i].style.opacity = 1; // Set opacity to 100%
       }
-      var settings = {
-        particles: {
-          length: 500, // maximum amount of particles
-          duration: 2, // particle duration in sec
-          velocity: 100, // particle velocity in pixels/sec
-          effect: -0.75, // play with this for a nice effect
-          size: 30, // particle size in pixels
-        },
-      };
+     var isMobile = window.innerWidth <= 768;
+
+var settings = {
+  particles: {
+    length: isMobile ? 220 : 500,
+    duration: isMobile ? 2.4 : 2,
+    velocity: isMobile ? 65 : 100,
+    effect: -0.75,
+    size: isMobile ? 18 : 30,
+  },
+};
       (
         function () {
           var b = 0;
@@ -753,13 +794,23 @@ S.ShapeBuilder = (function () {
           particleRate = settings.particles.length / settings.particles.duration, // particles/sec
           time;
         // get point on heart with -PI <= t <= PI
-        function pointOnHeart(t) {
-          return new Point(
-            160 * Math.pow(Math.sin(t), 3),
-            130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25
-          );
+       function getHeartScale() {
+  var minSide = Math.min(window.innerWidth, window.innerHeight);
 
-        }
+  if (minSide <= 420) return 0.62;
+  if (minSide <= 768) return 0.78;
+
+  return 1;
+}
+
+function pointOnHeart(t, scale) {
+  scale = typeof scale === 'number' ? scale : 1;
+
+  return new Point(
+    160 * Math.pow(Math.sin(t), 3) * scale,
+    (130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25) * scale
+  );
+}
 
         // creating the particle image using a dummy canvas
 
@@ -808,7 +859,7 @@ S.ShapeBuilder = (function () {
           // create new particles
           var amount = particleRate * deltaTime;
           for (var i = 0; i < amount; i++) {
-            var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
+            var pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random(), getHeartScale());
             var dir = pos.clone().length(settings.particles.velocity);
             particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
           }
@@ -821,7 +872,7 @@ S.ShapeBuilder = (function () {
           canvas.width = canvas.clientWidth;
           canvas.height = canvas.clientHeight;
         }
-        window.onresize = onResize;
+        window.addEventListener('resize', onResize);
         // delay rendering bootstrap
         setTimeout(function () {
           onResize();
@@ -862,75 +913,94 @@ S.Shape = (function () {
       }
     },
 
-    switchShape: function (n, fast) {
-      var size,
-        a = S.Drawing.getArea();
+switchShape: function (n, fast) {
+  var size,
+    a = S.Drawing.getArea();
 
-      width = n.w;
-      height = n.h;
+  width = n.w;
+  height = n.h;
 
-      compensate();
+  compensate();
 
-      if (n.dots.length > dots.length) {
-        size = n.dots.length - dots.length;
-        for (var d = 1; d <= size; d++) {
-          dots.push(new S.Dot(a.w / 2, a.h / 2));
-        }
-      }
+  if (n.dots.length > dots.length) {
+    size = n.dots.length - dots.length;
+    for (var d = 1; d <= size; d++) {
+      dots.push(new S.Dot(a.w / 2, a.h / 2));
+    }
+  }
 
-      var d = 0,
-        i = 0;
+  var d = 0,
+    i = 0;
 
-      while (n.dots.length > 0) {
-        i = Math.floor(Math.random() * n.dots.length);
-        dots[d].e = fast ? 0.25 : (dots[d].s ? 0.14 : 0.11);
+  while (n.dots.length > 0) {
+    i = Math.floor(Math.random() * n.dots.length);
 
-        if (dots[d].s) {
-          dots[d].move(new S.Point({
-            z: Math.random() * 20 + 10,
-            a: Math.random(),
-            h: 18
-          }));
-        } else {
-          dots[d].move(new S.Point({
-            z: Math.random() * 5 + 5,
-            h: fast ? 18 : 30
-          }));
-        }
+    // Kalau fast = true, dipakai untuk countdown.
+    // Jadi dot langsung morph ke angka berikutnya tanpa efek nyebar.
+    dots[d].e = fast ? 0.35 : (dots[d].s ? 0.14 : 0.11);
 
-        dots[d].s = true;
-        dots[d].move(new S.Point({
-          x: n.dots[i].x + cx,
-          y: n.dots[i].y + cy,
-          a: 1,
-          z: 5,
-          h: 0
-        }));
+    if (!fast) {
+      if (dots[d].s) {
+        dots[d].move(new S.Point({
+          z: window.innerWidth <= 480 ? Math.random() * 8 + 4 : Math.random() * 20 + 10,
+          a: Math.random(),
+          h: 18
+        }));
+      } else {
+        dots[d].move(new S.Point({
+          z: Math.random() * 5 + 5,
+          h: 30
+        }));
+      }
+    }
 
-        n.dots = n.dots.slice(0, i).concat(n.dots.slice(i + 1));
-        d++;
-      }
+    dots[d].s = true;
 
-      for (var i = d; i < dots.length; i++) {
-        if (dots[i].s) {
-          dots[i].move(new S.Point({
-            z: Math.random() * 20 + 10,
-            a: Math.random(),
-            h: 20
-          }));
+    dots[d].move(new S.Point({
+      x: n.dots[i].x + cx,
+      y: n.dots[i].y + cy,
+      a: 1,
+      z: window.innerWidth <= 480 ? 2.4 : window.innerWidth <= 768 ? 3.2 : 5,
+      h: fast ? 0 : 4
+    }));
 
-          dots[i].s = false;
-          dots[i].e = 0.04;
-          dots[i].move(new S.Point({
-            x: Math.random() * a.w,
-            y: Math.random() * a.h,
-            a: 0.3, //.4
-            z: Math.random() * 4,
-            h: 0
-          }));
-        }
-      }
-    },
+    n.dots = n.dots.slice(0, i).concat(n.dots.slice(i + 1));
+    d++;
+  }
+
+  for (var i = d; i < dots.length; i++) {
+    if (dots[i].s) {
+      if (fast) {
+        // Saat countdown, dot sisa jangan dilempar random.
+        // Cukup mengecil dan menghilang di sekitar tengah.
+        dots[i].move(new S.Point({
+          x: a.w / 2 + (Math.random() * 20 - 10),
+          y: a.h / 2 + (Math.random() * 20 - 10),
+          a: 0.1,
+          z: 1,
+          h: 0
+        }));
+      } else {
+        dots[i].move(new S.Point({
+          z: window.innerWidth <= 480 ? Math.random() * 8 + 4 : Math.random() * 20 + 10,
+          a: Math.random(),
+          h: 20
+        }));
+
+        dots[i].move(new S.Point({
+          x: Math.random() * a.w,
+          y: Math.random() * a.h,
+          a: 0.3,
+          z: Math.random() * 4,
+          h: 0
+        }));
+      }
+
+      dots[i].s = false;
+      dots[i].e = fast ? 0.18 : 0.04;
+    }
+  }
+},
 
     render: function () {
       for (var d = 0; d < dots.length; d++) {
