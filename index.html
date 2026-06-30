@@ -3,11 +3,12 @@
 
 <head>
     <meta charset="utf-8">
-    <title>???</title>
+    <title>Love</title>
     <meta name="language" content="zh-CN">
     <meta name="github" content="https://github.com/sun0225SUN/Awesome-Love-Code">
-    <meta name="describe" content="收集不易，您的star是我坚持的动力，同时也欢迎各位PR哦! ">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="describe" content="Responsive love animation">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 
     <link rel="icon" type="image/x-icon"
         href="https://cdn.jsdelivr.net/gh/sun0225SUN/photos/img/20210715233345.png">
@@ -17,63 +18,122 @@
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --app-width: 100vw;
+            --app-height: 100svh;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         html,
         body {
             margin: 0;
             width: 100%;
-            height: 100%;
+            height: var(--app-height);
+            min-height: var(--app-height);
             overflow: hidden;
             background: #000;
+            overscroll-behavior: none;
+            touch-action: manipulation;
         }
 
-        canvas {
-            position: absolute;
-            width: 100%;
-            height: 100%;
+        body {
+            position: fixed;
+            inset: 0;
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .layer-canvas {
+            position: fixed;
+            inset: 0;
+            width: var(--app-width);
+            height: var(--app-height);
+            display: block;
+            background: transparent;
+        }
+
+        .matrix-layer {
+            z-index: 8888;
+        }
+
+        .heart-layer {
+            z-index: 8889;
+        }
+
+        .shape-layer {
+            z-index: 9998;
         }
 
         .namebox {
             color: #ff5ba5;
-            position: absolute;
+            position: fixed;
             z-index: 9999;
             top: 50%;
             left: 50%;
-            -webkit-transform: translate(-50%, -50%);
-            -moz-transform: translate(-50%, -50%);
-            -ms-transform: translate(-50%, -50%);
-            -o-transform: translate(-50%, -50%);
+            width: min(92vw, 520px);
+            padding: 0 14px;
             transform: translate(-50%, -50%);
-            transition: 1s;
+            transition: opacity 1s ease, transform 1s ease;
             text-align: center;
             opacity: 0;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(255, 91, 165, 0.45);
         }
 
         .namebox h1 {
             margin: 0 auto;
+            line-height: 1.15;
             font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-            /* responsif */
-            font-size: clamp(24px, 5vw, 36px);
+            font-size: clamp(24px, 7vw, 42px);
+            word-break: keep-all;
+            overflow-wrap: normal;
+        }
+
+        #timer-label {
+            margin-top: 8px;
+            font-size: clamp(14px, 3.6vw, 18px);
         }
 
         #love-timer {
             font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
             margin-top: 10px;
-            font-size: clamp(14px, 3.2vw, 18px);
+            font-size: clamp(14px, 3.4vw, 18px);
+            line-height: 1.4;
             display: none;
         }
 
         #countdown-2025 {
             font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
             margin-top: 6px;
-            font-size: clamp(14px, 3vw, 17px);
+            font-size: clamp(14px, 3.3vw, 17px);
+            line-height: 1.4;
             display: none;
         }
 
-        /* Popup "Tap to Start" */
+        .overlay {
+            display: none;
+        }
+
+        .hidden-input {
+            position: fixed;
+            left: -9999px;
+            top: -9999px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .start-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85);
+            padding: calc(20px + var(--safe-top)) calc(20px + var(--safe-right)) calc(20px + var(--safe-bottom)) calc(20px + var(--safe-left));
+            background: rgba(0, 0, 0, 0.86);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -87,12 +147,13 @@
         }
 
         .start-dialog {
-            padding: 24px 28px;
-            max-width: 320px;
-            width: 80%;
-            max-height: 80vh;
+            padding: clamp(18px, 5vw, 28px);
+            max-width: 340px;
+            width: min(86vw, 340px);
+            max-height: 82vh;
             background: rgba(20, 20, 20, 0.95);
-            border-radius: 16px;
+            border: 1px solid rgba(255, 91, 165, 0.25);
+            border-radius: 18px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
@@ -102,28 +163,31 @@
 
         .start-title {
             margin: 0 0 8px;
-            font-size: clamp(18px, 5vw, 22px);
+            font-size: clamp(19px, 5.6vw, 24px);
+            line-height: 1.2;
             color: #ff5ba5;
             font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
         }
 
         .start-subtitle {
             margin: 0 0 20px;
-            font-size: clamp(13px, 3.5vw, 16px);
+            font-size: clamp(13px, 3.7vw, 16px);
             color: #f5f5f5;
             line-height: 1.5;
             font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
         }
 
         .start-button {
-            display: inline-block;
-            padding: 10px 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 24px;
             font-size: clamp(14px, 4vw, 16px);
             border-radius: 999px;
             border: none;
             outline: none;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.5px;
             background: linear-gradient(135deg, #ff5ba5, #ff9f7b);
             color: #fff;
@@ -145,19 +209,116 @@
         }
 
         @media (max-width: 480px) {
+            .namebox {
+                top: 51%;
+                width: 94vw;
+            }
+
+            .namebox h1 {
+                font-size: clamp(24px, 8vw, 34px);
+            }
+
+            .start-dialog {
+                width: min(90vw, 330px);
+            }
+        }
+
+        @media (max-height: 560px) {
+            .namebox {
+                top: 52%;
+            }
+
+            .namebox h1 {
+                font-size: clamp(22px, 6vw, 30px);
+            }
+
             .start-dialog {
                 padding: 16px 18px;
             }
         }
     </style>
 
+    <script>
+        /*
+          Responsive viewport helper.
+          Ini penting untuk mobile browser karena address bar bisa mengubah tinggi layar.
+        */
+        (function () {
+            function getViewportSize() {
+                const vv = window.visualViewport;
+                const width = Math.max(1, Math.floor(vv && vv.width ? vv.width : window.innerWidth));
+                const height = Math.max(1, Math.floor(vv && vv.height ? vv.height : window.innerHeight));
+
+                return { width, height };
+            }
+
+            function setAppViewport() {
+                const size = getViewportSize();
+
+                document.documentElement.style.setProperty('--app-width', size.width + 'px');
+                document.documentElement.style.setProperty('--app-height', size.height + 'px');
+
+                window.__LOVE_VIEWPORT__ = size;
+            }
+
+            window.__setLoveViewport = setAppViewport;
+            window.__getLoveViewport = getViewportSize;
+
+            setAppViewport();
+
+            window.addEventListener('resize', setAppViewport, { passive: true });
+            window.addEventListener('orientationchange', function () {
+                setTimeout(setAppViewport, 250);
+            }, { passive: true });
+
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', setAppViewport, { passive: true });
+                window.visualViewport.addEventListener('scroll', setAppViewport, { passive: true });
+            }
+        })();
+
+        /*
+          Teks default animasi.
+          Untuk mobile, sebaiknya per kata agar partikel huruf tidak terlalu kecil.
+        */
+        (function () {
+            const defaultAction = "|#countdown 3||Hello|Sheikaa|My|Love?||#rectangle|";
+
+            function normalizeAction(raw) {
+                if (!raw) return defaultAction;
+
+                const decoded = decodeURI(raw).trim();
+
+                if (decoded.indexOf('|') !== -1) {
+                    return decoded;
+                }
+
+                const isMobile = window.innerWidth <= 600;
+                const words = decoded.split(/\s+/).filter(Boolean);
+
+                if (isMobile && words.length > 1) {
+                    return "|#countdown 3||" + words.join("|") + "||#rectangle|";
+                }
+
+                return decoded;
+            }
+
+            const href = window.location.href;
+            const actionIndex = href.indexOf('?a=');
+
+            window.__LOVE_ACTION__ = actionIndex !== -1
+                ? normalizeAction(href.substring(actionIndex + 3))
+                : defaultAction;
+        })();
+    </script>
 </head>
 
 <body>
-    <canvas id="canvas-matrix" style="position:absolute;width:100%;height:100%;z-index:8888"></canvas>
-    <canvas style="position:absolute;width:100%;height:100%;z-index:9999" class="canvas"></canvas>
+    <canvas id="canvas-matrix" class="layer-canvas matrix-layer"></canvas>
+    <canvas class="layer-canvas shape-layer canvas"></canvas>
+    <canvas id="pinkboard" class="layer-canvas heart-layer"></canvas>
 
-    <div class="overlay">
+    <div id="overlay" class="overlay">
         <div class="tabs">
             <div class="tabs-labels">
                 <span class="tabs-label">Commands</span>
@@ -166,32 +327,259 @@
             </div>
 
             <div class="tabs-panels">
-                <ul class="tabs-panel commands">
-                </ul>
+                <ul class="tabs-panel commands"></ul>
             </div>
         </div>
     </div>
 
-    <canvas id="pinkboard" style="position:absolute;width:100%;height:100%;z-index:8888"></canvas>
-
-    <script src="js/matrix.js"></script>
+    <input id="input" class="hidden-input" type="text" aria-hidden="true" tabindex="-1">
 
     <div class="namebox">
         <h1 id="title-love">
             Sumii&#10084;&#65039;Sheikaa
         </h1>
-        <br>
-        <div id="timer-label">??? </div>
+
+        <div id="timer-label">???</div>
+
         <div id="love-timer">
             0 hari 0 jam 0 menit 0 detik
         </div>
+
         <div id="countdown-2025">
-        Otw meet: The day has come. ❤️
+            Otw meet: The day has come. ❤️
         </div>
     </div>
 
+    <div id="start-overlay" class="start-overlay">
+        <div class="start-dialog">
+            <h2 class="start-title">???</h2>
+            <p class="start-subtitle">
+                Please tap start button.<br>
+                :)
+            </p>
+            <button id="start-button" class="start-button">
+                Tap to Start
+            </button>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop preload="auto">
+        <source src="dunno.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung pemutar audio.
+    </audio>
+
+    <script src="js/matrix.js"></script>
+
     <script>
-        // 29 Oktober 2025, 17:52 WIB (GMT+7)
+        const bgMusic = document.getElementById('bg-music');
+        const startOverlay = document.getElementById('start-overlay');
+        const startButton = document.getElementById('start-button');
+        const namebox = document.querySelector('.namebox');
+
+        let hasStarted = false;
+
+        function getViewportSize() {
+            if (typeof window.__getLoveViewport === 'function') {
+                return window.__getLoveViewport();
+            }
+
+            const vv = window.visualViewport;
+            return {
+                width: Math.max(1, Math.floor(vv && vv.width ? vv.width : window.innerWidth)),
+                height: Math.max(1, Math.floor(vv && vv.height ? vv.height : window.innerHeight))
+            };
+        }
+
+        function resizeCanvasToFullScreen() {
+            if (typeof window.__setLoveViewport === 'function') {
+                window.__setLoveViewport();
+            }
+
+            const size = getViewportSize();
+            const cvsList = document.querySelectorAll('canvas');
+
+            cvsList.forEach(function (cvs) {
+                cvs.style.width = size.width + 'px';
+                cvs.style.height = size.height + 'px';
+                cvs.width = size.width;
+                cvs.height = size.height;
+            });
+        }
+
+        window.addEventListener('load', resizeCanvasToFullScreen, { passive: true });
+        window.addEventListener('resize', resizeCanvasToFullScreen, { passive: true });
+        window.addEventListener('orientationchange', function () {
+            setTimeout(resizeCanvasToFullScreen, 250);
+        }, { passive: true });
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', resizeCanvasToFullScreen, { passive: true });
+            window.visualViewport.addEventListener('scroll', resizeCanvasToFullScreen, { passive: true });
+        }
+
+        resizeCanvasToFullScreen();
+
+        function revealLoveTitle() {
+            if (namebox) {
+                namebox.style.opacity = 1;
+            }
+        }
+
+        window.addEventListener('hearts-ready', revealLoveTitle);
+
+        /*
+          Load script biasa.
+        */
+        function loadScript(src) {
+            return new Promise(function (resolve, reject) {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
+
+        /*
+          Patch js/index.js dari index.html:
+          1. gap partikel lebih kecil di mobile
+          2. canvas pakai visualViewport
+          3. clone point diperbaiki
+          4. resize heart tidak menimpa window.onresize
+          5. action default memakai window.__LOVE_ACTION__
+        */
+        function patchIndexScript(source) {
+            let code = source;
+
+            code = code.replace(
+                /if \(i !== -1\) \{\s*S\.UI\.simulate\(decodeURI\(action\)\.substring\(i \+ 3\)\);\s*\} else \{\s*S\.UI\.simulate\("\|#countdown 3\|\|Hello\|Sheikaa\|My\|Love\?\|\|#rectangle\|"\);\s*\}/,
+                'S.UI.simulate(window.__LOVE_ACTION__ || (i !== -1 ? decodeURI(action).substring(i + 3) : "|#countdown 3||Hello|Sheikaa|My|Love?||#rectangle|"));'
+            );
+
+            code = code.replace(
+                /var gap = 13,/,
+                'var gap = (window.innerWidth <= 380 ? 6 : window.innerWidth <= 600 ? 7 : 13),'
+            );
+
+            code = code.replace(
+                /function fit\(\) \{\s*shapeCanvas\.width = Math\.floor\(window\.innerWidth \/ gap\) \* gap;\s*shapeCanvas\.height = Math\.floor\(window\.innerHeight \/ gap\) \* gap;/,
+                `function fit() {
+    gap = (window.innerWidth <= 380 ? 6 : window.innerWidth <= 600 ? 7 : 13);
+    var __vw = Math.floor((window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth);
+    var __vh = Math.floor((window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight);
+    shapeCanvas.width = Math.floor(__vw / gap) * gap;
+    shapeCanvas.height = Math.floor(__vh / gap) * gap;`
+            );
+
+            code = code.replace(
+                /canvas\.width = window\.innerWidth;\s*canvas\.height = window\.innerHeight;/,
+                `var __vw = Math.floor((window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth);
+      var __vh = Math.floor((window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight);
+      canvas.width = __vw;
+      canvas.height = __vh;`
+            );
+
+            code = code.replace(
+                /window\.addEventListener\('resize', fit\);/,
+                `window.addEventListener('resize', fit);
+    window.addEventListener('orientationchange', function () { setTimeout(fit, 250); });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', fit);`
+            );
+
+            code = code.replace(
+                /x: this\.x,\s*y: this\.y,\s*z: this\.z,\s*a: this\.a,\s*h: this\.h/,
+                `x: this.p.x,
+      y: this.p.y,
+      z: this.p.z,
+      a: this.p.a,
+      h: this.p.h`
+            );
+
+            code = code.replace(
+                /window\.onresize = onResize;/,
+                `window.addEventListener('resize', onResize);
+        window.addEventListener('orientationchange', function () { setTimeout(onResize, 250); });
+        if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize);`
+            );
+
+            code += "\n//# sourceURL=js/index.patched.js\n";
+
+            return code;
+        }
+
+        /*
+          Load js/index.js dengan patch.
+          Catatan: ini paling aman kalau dibuka lewat server, GitHub Pages, Netlify, Vercel, atau Live Server VS Code.
+        */
+        async function loadPatchedIndexScript() {
+            try {
+                const response = await fetch("js/index.js", { cache: "no-cache" });
+
+                if (!response.ok) {
+                    throw new Error("Tidak bisa membaca js/index.js");
+                }
+
+                const originalCode = await response.text();
+                const patchedCode = patchIndexScript(originalCode);
+                const blob = new Blob([patchedCode], { type: "text/javascript" });
+                const blobUrl = URL.createObjectURL(blob);
+
+                await loadScript(blobUrl);
+
+                setTimeout(function () {
+                    URL.revokeObjectURL(blobUrl);
+                }, 3000);
+            } catch (err) {
+                console.warn("Patch responsive gagal, load js/index.js normal:", err);
+                await loadScript("js/index.js");
+            }
+        }
+
+        async function startExperience() {
+            if (hasStarted) return;
+            hasStarted = true;
+
+            resizeCanvasToFullScreen();
+
+            if (startButton) {
+                startButton.disabled = true;
+            }
+
+            if (bgMusic) {
+                try {
+                    bgMusic.currentTime = 0;
+                    await bgMusic.play();
+                } catch (err) {
+                    console.log("Audio gagal diputar:", err);
+                }
+            }
+
+            await loadPatchedIndexScript();
+            await loadScript("js/heart.js");
+
+            resizeCanvasToFullScreen();
+
+            if (startOverlay) {
+                startOverlay.classList.add('hidden');
+            }
+        }
+
+        if (startButton) {
+            startButton.addEventListener('click', startExperience);
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (!startOverlay || startOverlay.classList.contains('hidden')) return;
+
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                startExperience();
+            }
+        });
+
+        /*
+          Love timer
+        */
         const startTime = new Date('2025-10-29T17:52:00+07:00');
 
         function updateLoveTimer() {
@@ -208,9 +596,14 @@
 
             const minutes = Math.floor(diffSeconds / 60);
             const seconds = diffSeconds % 60;
-            document.getElementById('timer-label').textContent =
-            '???';
+
+            const timerLabel = document.getElementById('timer-label');
             const timerEl = document.getElementById('love-timer');
+
+            if (timerLabel) {
+                timerLabel.textContent = '???';
+            }
+
             if (timerEl) {
                 timerEl.textContent =
                     days + ' hari ' +
@@ -223,127 +616,40 @@
         updateLoveTimer();
         setInterval(updateLoveTimer, 1000);
 
-            const targetDate2025 = new Date('2025-12-27T00:00:00+07:00');
+        /*
+          Countdown harian ke jam 18:00 WIB.
+        */
+        function updateCountdown2025() {
+            const now = new Date();
 
-function updateCountdown2025() {
-    const now = new Date();
+            const target = new Date();
+            target.setHours(18, 0, 0, 0);
 
-    // Target jam 18:00 WIB hari ini
-    const target = new Date();
-    target.setHours(18, 0, 0, 0);
+            const countdownEl = document.getElementById('countdown-2025');
+            if (!countdownEl) return;
 
-    const countdownEl = document.getElementById('countdown-2025');
-    if (!countdownEl) return;
+            let diffMs = target - now;
 
-    let diffMs = target - now;
-
-    // Jika waktu sudah tiba / lewat
-    if (diffMs <= 0) {
-        countdownEl.textContent = "Otw meet: The day has come. ❤️";
-        return;
-    }
-
-    const totalSeconds = Math.floor(diffMs / 1000);
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    countdownEl.textContent =
-        "Otw meet: " +
-        hours + " jam " +
-        minutes + " menit " +
-        seconds + " detik ";
-}
-
-// update langsung & tiap detik
-updateCountdown2025();
-setInterval(updateCountdown2025, 1000);
-    </script>
-
-    <div id="start-overlay" class="start-overlay">
-        <div class="start-dialog">
-            <h2 class="start-title">???</h2>
-            <p class="start-subtitle">
-                Please tap start button.<br>
-                :)
-            </p>
-            <button id="start-button" class="start-button">
-                Tap to Start
-            </button>
-        </div>
-    </div>
-
-    <audio id="bg-music" loop>
-        <source src="dunno.mp3" type="audio/mpeg">
-        Browser Anda tidak mendukung pemutar audio.
-    </audio>
-
-    <script>
-        const bgMusic = document.getElementById('bg-music');
-        const startOverlay = document.getElementById('start-overlay');
-        const startButton = document.getElementById('start-button');
-        const namebox = document.querySelector('.namebox');
-
-        function loadScript(src) {
-            return new Promise((resolve) => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = resolve;
-                document.body.appendChild(script);
-            });
-        }
-
-        function revealLoveTitle() {
-            if (namebox) {
-                namebox.style.opacity = 1;
-            }
-        }
-
-        window.addEventListener('hearts-ready', revealLoveTitle);
-
-        async function startExperience() {
-            if (startButton) {
-                startButton.disabled = true;
+            if (diffMs <= 0) {
+                countdownEl.textContent = "Otw meet: The day has come. ❤️";
+                return;
             }
 
-            if (bgMusic) {
-                try {
-                    await bgMusic.play();
-                } catch (err) {
-                    console.log("Audio gagal diputar:", err);
-                }
-            }
+            const totalSeconds = Math.floor(diffMs / 1000);
 
-            await loadScript("js/index.js");
-            await loadScript("js/heart.js");
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
 
-            if (startOverlay) startOverlay.classList.add('hidden');
+            countdownEl.textContent =
+                "Otw meet: " +
+                hours + " jam " +
+                minutes + " menit " +
+                seconds + " detik";
         }
 
-        if (startButton) {
-            startButton.addEventListener('click', startExperience);
-        }
-
-        document.addEventListener('keydown', function (e) {
-            if (!startOverlay || startOverlay.classList.contains('hidden')) return;
-
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                startExperience();
-            }
-        });
-
-        function resizeCanvasToFullScreen() {
-            const cvsList = document.querySelectorAll('canvas');
-            cvsList.forEach(cvs => {
-                cvs.width = window.innerWidth;
-                cvs.height = window.innerHeight;
-            });
-        }
-
-        window.addEventListener('load', resizeCanvasToFullScreen);
-        window.addEventListener('resize', resizeCanvasToFullScreen);
+        updateCountdown2025();
+        setInterval(updateCountdown2025, 1000);
     </script>
 
 </body>
