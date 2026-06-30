@@ -2,556 +2,562 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>???</title>
-    <meta name="language" content="zh-CN">
-    <meta name="github" content="https://github.com/sun0225SUN/Awesome-Love-Code">
-    <meta name="describe" content="Responsive love animation">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>???</title>
+    <meta name="language" content="zh-CN">
+    <meta name="github" content="https://github.com/sun0225SUN/Awesome-Love-Code">
+    <meta name="describe" content="Responsive love animation">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 
-    <link rel="icon" type="image/x-icon"
-        href="https://cdn.jsdelivr.net/gh/sun0225SUN/photos/img/20210715233345.png">
+    <link rel="icon" type="image/x-icon"
+        href="https://cdn.jsdelivr.net/gh/sun0225SUN/photos/img/20210715233345.png">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --app-width: 100vw;
-            --app-height: 100svh;
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-            --safe-left: env(safe-area-inset-left, 0px);
-            --safe-right: env(safe-area-inset-right, 0px);
-        }
+    <style>
+        :root {
+            --app-width: 100vw;
+            --app-height: 100svh;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+        }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        html,
-        body {
-            margin: 0;
-            width: 100%;
-            height: var(--app-height);
-            min-height: var(--app-height);
-            overflow: hidden;
-            background: #000;
-            overscroll-behavior: none;
-            touch-action: manipulation;
-        }
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: var(--app-height);
+            min-height: var(--app-height);
+            overflow: hidden;
+            background: #000;
+            overscroll-behavior: none;
+            touch-action: manipulation;
+        }
 
-        body {
-            position: fixed;
-            inset: 0;
-            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-        }
+        body {
+            position: fixed;
+            inset: 0;
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+        }
 
-        .layer-canvas {
-            position: fixed;
-            inset: 0;
-            width: var(--app-width) !important;
-            height: var(--app-height) !important;
-            display: block;
-            background: transparent;
-        }
+        .layer-canvas {
+            position: fixed;
+            inset: 0;
+            width: var(--app-width);
+            height: var(--app-height);
+            display: block;
+            background: transparent;
+        }
 
-        .matrix-layer {
-            z-index: 8888;
-        }
+        .matrix-layer {
+            z-index: 8888;
+        }
 
-        .heart-layer {
-            z-index: 8889;
-        }
+        .heart-layer {
+            z-index: 8889;
+        }
 
-        .shape-layer {
-            z-index: 9998;
-        }
+        .shape-layer {
+            z-index: 9998;
+        }
 
-        .namebox {
-            color: #ff5ba5;
-            position: fixed;
-            z-index: 9999;
-            top: 50%;
-            left: 50%;
-            width: min(92vw, 520px);
-            padding: 0 14px;
-            transform: translate(-50%, -50%);
-            transition: opacity 1s ease, transform 1s ease;
-            text-align: center;
-            opacity: 0;
-            pointer-events: none;
-            text-shadow: 0 0 10px rgba(255, 91, 165, 0.45);
-        }
+        .namebox {
+            color: #ff5ba5;
+            position: fixed;
+            z-index: 9999;
+            top: 50%;
+            left: 50%;
+            width: min(92vw, 520px);
+            padding: 0 14px;
+            transform: translate(-50%, -50%);
+            transition: opacity 1s ease, transform 1s ease;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(255, 91, 165, 0.45);
+        }
 
-        .namebox h1 {
-            margin: 0 auto;
-            line-height: 1.15;
-            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-            font-size: clamp(22px, 6.5vw, 42px);
-            word-break: keep-all;
-            overflow-wrap: normal;
-        }
+        .namebox h1 {
+            margin: 0 auto;
+            line-height: 1.15;
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+            font-size: clamp(24px, 7vw, 42px);
+            word-break: keep-all;
+            overflow-wrap: normal;
+        }
 
-        #timer-label {
-            margin-top: 8px;
-            font-size: clamp(14px, 3.6vw, 18px);
-        }
+        #timer-label {
+            margin-top: 8px;
+            font-size: clamp(14px, 3.6vw, 18px);
+        }
 
-        #love-timer {
-            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-            margin-top: 10px;
-            font-size: clamp(14px, 3.4vw, 18px);
-            line-height: 1.4;
-            display: none;
-        }
+        #love-timer {
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+            margin-top: 10px;
+            font-size: clamp(14px, 3.4vw, 18px);
+            line-height: 1.4;
+            display: none;
+        }
 
-        #countdown-2025 {
-            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-            margin-top: 6px;
-            font-size: clamp(14px, 3.3vw, 17px);
-            line-height: 1.4;
-            display: none;
-        }
+        #countdown-2025 {
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+            margin-top: 6px;
+            font-size: clamp(14px, 3.3vw, 17px);
+            line-height: 1.4;
+            display: none;
+        }
 
-        .overlay {
-            display: none;
-        }
+        .overlay {
+            display: none;
+        }
 
-        .hidden-input {
-            position: fixed;
-            left: -9999px;
-            top: -9999px;
-            opacity: 0;
-            pointer-events: none;
-        }
+        .hidden-input {
+            position: fixed;
+            left: -9999px;
+            top: -9999px;
+            opacity: 0;
+            pointer-events: none;
+        }
 
-        .start-overlay {
-            position: fixed;
-            inset: 0;
-            padding: calc(20px + var(--safe-top)) calc(20px + var(--safe-right)) calc(20px + var(--safe-bottom)) calc(20px + var(--safe-left));
-            background: rgba(0, 0, 0, 0.86);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            transition: opacity 0.4s ease;
-        }
+        .start-overlay {
+            position: fixed;
+            inset: 0;
+            padding: calc(20px + var(--safe-top)) calc(20px + var(--safe-right)) calc(20px + var(--safe-bottom)) calc(20px + var(--safe-left));
+            background: rgba(0, 0, 0, 0.86);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.4s ease;
+        }
 
-        .start-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+        .start-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-        .start-dialog {
-            padding: clamp(18px, 5vw, 28px);
-            max-width: 340px;
-            width: min(86vw, 340px);
-            max-height: 82vh;
-            background: rgba(20, 20, 20, 0.95);
-            border: 1px solid rgba(255, 91, 165, 0.25);
-            border-radius: 18px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            overflow-y: auto;
-        }
+        .start-dialog {
+            padding: clamp(18px, 5vw, 28px);
+            max-width: 340px;
+            width: min(86vw, 340px);
+            max-height: 82vh;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 91, 165, 0.25);
+            border-radius: 18px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            overflow-y: auto;
+        }
 
-        .start-title {
-            margin: 0 0 8px;
-            font-size: clamp(19px, 5.6vw, 24px);
-            line-height: 1.2;
-            color: #ff5ba5;
-            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-        }
+        .start-title {
+            margin: 0 0 8px;
+            font-size: clamp(19px, 5.6vw, 24px);
+            line-height: 1.2;
+            color: #ff5ba5;
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+        }
 
-        .start-subtitle {
-            margin: 0 0 20px;
-            font-size: clamp(13px, 3.7vw, 16px);
-            color: #f5f5f5;
-            line-height: 1.5;
-            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
-        }
+        .start-subtitle {
+            margin: 0 0 20px;
+            font-size: clamp(13px, 3.7vw, 16px);
+            color: #f5f5f5;
+            line-height: 1.5;
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+        }
 
-        .start-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 11px 24px;
-            font-size: clamp(14px, 4vw, 16px);
-            border-radius: 999px;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            background: linear-gradient(135deg, #ff5ba5, #ff9f7b);
-            color: #fff;
-            box-shadow: 0 6px 15px rgba(255, 91, 165, 0.5);
-            transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
-            min-width: 160px;
-            min-height: 44px;
-        }
+        .start-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 24px;
+            font-size: clamp(14px, 4vw, 16px);
+            border-radius: 999px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #ff5ba5, #ff9f7b);
+            color: #fff;
+            box-shadow: 0 6px 15px rgba(255, 91, 165, 0.5);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
+            min-width: 160px;
+            min-height: 44px;
+        }
 
-        .start-button:active {
-            transform: translateY(1px) scale(0.98);
-            box-shadow: 0 3px 10px rgba(255, 91, 165, 0.4);
-        }
+        .start-button:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 3px 10px rgba(255, 91, 165, 0.4);
+        }
 
-        .start-button:disabled {
-            opacity: 0.6;
-            cursor: default;
-            box-shadow: none;
-        }
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: default;
+            box-shadow: none;
+        }
 
-        @media (max-width: 480px) {
-            .namebox {
-                top: 51%;
-                width: 94vw;
-            }
+        @media (max-width: 480px) {
+            .namebox {
+                top: 51%;
+                width: 94vw;
+            }
 
-            .namebox h1 {
-                font-size: clamp(20px, 7.5vw, 32px);
-            }
+            .namebox h1 {
+                font-size: clamp(24px, 8vw, 34px);
+            }
 
-            .start-dialog {
-                width: min(90vw, 330px);
-            }
-        }
+            .start-dialog {
+                width: min(90vw, 330px);
+            }
+        }
 
-        @media (max-height: 560px) {
-            .namebox {
-                top: 52%;
-            }
+        @media (max-height: 560px) {
+            .namebox {
+                top: 52%;
+            }
 
-            .namebox h1 {
-                font-size: clamp(18px, 6vw, 28px);
-            }
+            .namebox h1 {
+                font-size: clamp(22px, 6vw, 30px);
+            }
 
-            .start-dialog {
-                padding: 16px 18px;
-            }
-        }
-    </style>
+            .start-dialog {
+                padding: 16px 18px;
+            }
+        }
+    </style>
 
-    <script>
-        /*
-          Responsive viewport helper.
-          Mengikuti perubahan visualViewport secara dinamis mengatasi address bar mobile.
-        */
-        (function () {
-            function getViewportSize() {
-                const vv = window.visualViewport;
-                const width = Math.max(1, Math.floor(vv && vv.width ? vv.width : window.innerWidth));
-                const height = Math.max(1, Math.floor(vv && vv.height ? vv.height : window.innerHeight));
-                return { width, height };
-            }
+    <script>
+        /*
+          Responsive viewport helper.
+          Ini penting untuk mobile browser karena address bar bisa mengubah tinggi layar.
+        */
+        (function () {
+            function getViewportSize() {
+                const vv = window.visualViewport;
+                const width = Math.max(1, Math.floor(vv && vv.width ? vv.width : window.innerWidth));
+                const height = Math.max(1, Math.floor(vv && vv.height ? vv.height : window.innerHeight));
 
-            function setAppViewport() {
-                const size = getViewportSize();
-                document.documentElement.style.setProperty('--app-width', size.width + 'px');
-                document.documentElement.style.setProperty('--app-height', size.height + 'px');
-                window.__LOVE_VIEWPORT__ = size;
-            }
+                return { width, height };
+            }
 
-            window.__setLoveViewport = setAppViewport;
-            window.__getLoveViewport = getViewportSize;
+            function setAppViewport() {
+                const size = getViewportSize();
 
-            setAppViewport();
+                document.documentElement.style.setProperty('--app-width', size.width + 'px');
+                document.documentElement.style.setProperty('--app-height', size.height + 'px');
 
-            window.addEventListener('resize', setAppViewport, { passive: true });
-            window.addEventListener('orientationchange', function () {
-                setTimeout(setAppViewport, 300);
-            }, { passive: true });
+                window.__LOVE_VIEWPORT__ = size;
+            }
 
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', setAppViewport, { passive: true });
-                window.visualViewport.addEventListener('scroll', setAppViewport, { passive: true });
-            }
-        })();
+            window.__setLoveViewport = setAppViewport;
+            window.__getLoveViewport = getViewportSize;
 
-        /*
-          Teks default animasi.
-        */
-        (function () {
-            const defaultAction = "|#countdown 3||Hello|Sheikaa|My|Love?||#rectangle|";
+            setAppViewport();
 
-            function normalizeAction(raw) {
-                if (!raw) return defaultAction;
-                const decoded = decodeURI(raw).trim();
-                if (decoded.indexOf('|') !== -1) {
-                    return decoded;
-                }
-                const isMobile = window.innerWidth <= 600;
-                const words = decoded.split(/\s+/).filter(Boolean);
+            window.addEventListener('resize', setAppViewport, { passive: true });
+            window.addEventListener('orientationchange', function () {
+                setTimeout(setAppViewport, 250);
+            }, { passive: true });
 
-                if (isMobile && words.length > 1) {
-                    return "|#countdown 3||" + words.join("|") + "||#rectangle|";
-                }
-                return decoded;
-            }
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', setAppViewport, { passive: true });
+                window.visualViewport.addEventListener('scroll', setAppViewport, { passive: true });
+            }
+        })();
 
-            const href = window.location.href;
-            const actionIndex = href.indexOf('?a=');
+        /*
+          Teks default animasi.
+          Untuk mobile, sebaiknya per kata agar partikel huruf tidak terlalu kecil.
+        */
+        (function () {
+            const defaultAction = "|#countdown 3||Hello|Sheikaa|My|Love?||#rectangle|";
 
-            window.__LOVE_ACTION__ = actionIndex !== -1
-                ? normalizeAction(href.substring(actionIndex + 3))
-                : defaultAction;
-        })();
-    </script>
+            function normalizeAction(raw) {
+                if (!raw) return defaultAction;
+
+                const decoded = decodeURI(raw).trim();
+
+                if (decoded.indexOf('|') !== -1) {
+                    return decoded;
+                }
+
+                const isMobile = window.innerWidth <= 600;
+                const words = decoded.split(/\s+/).filter(Boolean);
+
+                if (isMobile && words.length > 1) {
+                    return "|#countdown 3||" + words.join("|") + "||#rectangle|";
+                }
+
+                return decoded;
+            }
+
+            const href = window.location.href;
+            const actionIndex = href.indexOf('?a=');
+
+            window.__LOVE_ACTION__ = actionIndex !== -1
+                ? normalizeAction(href.substring(actionIndex + 3))
+                : defaultAction;
+        })();
+    </script>
 </head>
 
 <body>
-    <canvas id="canvas-matrix" class="layer-canvas matrix-layer"></canvas>
-    <canvas class="layer-canvas shape-layer canvas"></canvas>
-    <canvas id="pinkboard" class="layer-canvas heart-layer"></canvas>
+    <canvas id="canvas-matrix" class="layer-canvas matrix-layer"></canvas>
+    <canvas class="layer-canvas shape-layer canvas"></canvas>
+    <canvas id="pinkboard" class="layer-canvas heart-layer"></canvas>
 
-    <div id="overlay" class="overlay">
-        <div class="tabs">
-            <div class="tabs-labels">
-                <span class="tabs-label">Commands</span>
-                <span class="tabs-label">Info</span>
-                <span class="tabs-label">Share</span>
-            </div>
-            <div class="tabs-panels">
-                <ul class="tabs-panel commands"></ul>
-            </div>
-        </div>
-    </div>
+    <div id="overlay" class="overlay">
+        <div class="tabs">
+            <div class="tabs-labels">
+                <span class="tabs-label">Commands</span>
+                <span class="tabs-label">Info</span>
+                <span class="tabs-label">Share</span>
+            </div>
 
-    <input id="input" class="hidden-input" type="text" aria-hidden="true" tabindex="-1">
+            <div class="tabs-panels">
+                <ul class="tabs-panel commands"></ul>
+            </div>
+        </div>
+    </div>
 
-    <div class="namebox">
-        <h1 id="title-love">
-            Sumii&#10084;&#65039;Sheikaa
-        </h1>
+    <input id="input" class="hidden-input" type="text" aria-hidden="true" tabindex="-1">
 
-        <div id="timer-label">???</div>
+    <div class="namebox">
+        <h1 id="title-love">
+            Sumii&#10084;&#65039;Sheikaa
+        </h1>
 
-        <div id="love-timer">
-            0 hari 0 jam 0 menit 0 detik
-        </div>
+        <div id="timer-label">???</div>
 
-        <div id="countdown-2025">
-            Otw meet: The day has come. ❤️
-        </div>
-    </div>
+        <div id="love-timer">
+            0 hari 0 jam 0 menit 0 detik
+        </div>
 
-    <div id="start-overlay" class="start-overlay">
-        <div class="start-dialog">
-            <h2 class="start-title">???</h2>
-            <p class="start-subtitle">
-                Please tap start button.<br>
-                :)
-            </p>
-            <button id="start-button" class="start-button">
-                Tap to Start
-            </button>
-        </div>
-    </div>
+        <div id="countdown-2025">
+            Otw meet: The day has come. ❤️
+        </div>
+    </div>
 
-    <audio id="bg-music" loop preload="auto">
-        <source src="dunno.mp3" type="audio/mpeg">
-        Browser Anda tidak mendukung pemutar audio.
-    </audio>
+    <div id="start-overlay" class="start-overlay">
+        <div class="start-dialog">
+            <h2 class="start-title">???</h2>
+            <p class="start-subtitle">
+                Please tap start button.<br>
+                :)
+            </p>
+            <button id="start-button" class="start-button">
+                Tap to Start
+            </button>
+        </div>
+    </div>
 
-    <script src="js/matrix.js"></script>
+    <audio id="bg-music" loop preload="auto">
+        <source src="dunno.mp3" type="audio/mpeg">
+        Browser Anda tidak mendukung pemutar audio.
+    </audio>
 
-    <script>
-        const bgMusic = document.getElementById('bg-music');
-        const startOverlay = document.getElementById('start-overlay');
-        const startButton = document.getElementById('start-button');
-        const namebox = document.querySelector('.namebox');
+    <script src="js/matrix.js"></script>
 
-        let hasStarted = false;
+    <script>
+        const bgMusic = document.getElementById('bg-music');
+        const startOverlay = document.getElementById('start-overlay');
+        const startButton = document.getElementById('start-button');
+        const namebox = document.querySelector('.namebox');
 
-        function getViewportSize() {
-            if (typeof window.__getLoveViewport === 'function') {
-                return window.__getLoveViewport();
-            }
-            const vv = window.visualViewport;
-            return {
-                width: Math.max(1, Math.floor(vv && vv.width ? vv.width : window.innerWidth)),
-                height: Math.max(1, Math.floor(vv && vv.height ? vv.height : window.innerHeight))
-            };
-        }
+        let hasStarted = false;
 
-        /*
-           Fungsi resize murni responsif tanpa merusak ukuran internal canvas 
-           yang diatur oleh script.js (Shape Shifter)
-        */
-       function resizeCanvasToFullScreen() {
-            if (typeof window.__setLoveViewport === 'function') {
-                window.__setLoveViewport();
-            }
+        function getViewportSize() {
+            if (typeof window.__getLoveViewport === 'function') {
+                return window.__getLoveViewport();
+            }
 
-            const size = getViewportSize();
-            const cvsList = document.querySelectorAll('canvas');
+            const vv = window.visualViewport;
+            return {
+                width: Math.max(1, Math.floor(vv && vv.width ? vv.width : window.innerWidth)),
+                height: Math.max(1, Math.floor(vv && vv.height ? vv.height : window.innerHeight))
+            };
+        }
 
-            cvsList.forEach(function (cvs) {
-                // Memastikan ukuran fisik kanvas mengikuti layar tanpa konflik
-                cvs.style.width = size.width + 'px';
-                cvs.style.height = size.height + 'px';
-                
-                // Setel resolusi internal agar tidak pecah
-                cvs.width = size.width;
-                cvs.height = size.height;
-            });
-            // Memberitahu script.js untuk menghitung ulang posisi tengah (centering)
-            if (window.S && window.S.Shape && typeof window.S.Shape.compensate === 'function') {
-                window.S.Shape.compensate();
-            }
-        }
+        function resizeCanvasToFullScreen() {
+            if (typeof window.__setLoveViewport === 'function') {
+                window.__setLoveViewport();
+            }
 
-        window.addEventListener('load', resizeCanvasToFullScreen, { passive: true });
-        window.addEventListener('resize', resizeCanvasToFullScreen, { passive: true });
-        window.addEventListener('orientationchange', function () {
-            setTimeout(resizeCanvasToFullScreen, 300);
-        }, { passive: true });
+            const size = getViewportSize();
+            const cvsList = document.querySelectorAll('canvas');
 
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', resizeCanvasToFullScreen, { passive: true });
-            window.visualViewport.addEventListener('scroll', resizeCanvasToFullScreen, { passive: true });
-        }
+            cvsList.forEach(function (cvs) {
+                cvs.style.width = size.width + 'px';
+                cvs.style.height = size.height + 'px';
+                cvs.width = size.width;
+                cvs.height = size.height;
+            });
+        }
 
-        resizeCanvasToFullScreen();
+        window.addEventListener('load', resizeCanvasToFullScreen, { passive: true });
+        window.addEventListener('resize', resizeCanvasToFullScreen, { passive: true });
+        window.addEventListener('orientationchange', function () {
+            setTimeout(resizeCanvasToFullScreen, 250);
+        }, { passive: true });
 
-        function revealLoveTitle() {
-            if (namebox) {
-                namebox.style.opacity = 1;
-            }
-        }
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', resizeCanvasToFullScreen, { passive: true });
+            window.visualViewport.addEventListener('scroll', resizeCanvasToFullScreen, { passive: true });
+        }
 
-        window.addEventListener('hearts-ready', revealLoveTitle);
+        resizeCanvasToFullScreen();
 
-        function loadScript(src) {
-            return new Promise(function (resolve, reject) {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = resolve;
-                script.onerror = reject;
-                document.body.appendChild(script);
-            });
-        }
-        
-        async function startExperience() {
-            if (hasStarted) return;
-            hasStarted = true;
+        function revealLoveTitle() {
+            if (namebox) {
+                namebox.style.opacity = 1;
+            }
+        }
 
-            resizeCanvasToFullScreen();
+        window.addEventListener('hearts-ready', revealLoveTitle);
 
-            if (startButton) {
-                startButton.disabled = true;
-            }
+        /*
+          Load script biasa.
+        */
+        function loadScript(src) {
+            return new Promise(function (resolve, reject) {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        }
+        
+            async function startExperience() {
+            if (hasStarted) return;
+            hasStarted = true;
 
-            if (bgMusic) {
-                try {
-                    bgMusic.currentTime = 0;
-                    await bgMusic.play();
-                } catch (err) {
-                    console.log("Audio gagal diputar:", err);
-                }
-            }
+            resizeCanvasToFullScreen();
 
-            await loadScript("js/index.js");
-            await loadScript("js/heart.js");
+            if (startButton) {
+                startButton.disabled = true;
+            }
 
-            resizeCanvasToFullScreen();
+            if (bgMusic) {
+                try {
+                    bgMusic.currentTime = 0;
+                    await bgMusic.play();
+                } catch (err) {
+                    console.log("Audio gagal diputar:", err);
+                }
+            }
 
-            if (startOverlay) {
-                startOverlay.classList.add('hidden');
-            }
-        }
 
-        if (startButton) {
-            startButton.addEventListener('click', startExperience);
-        }
+            await loadScript("js/index.js");
+            await loadScript("js/heart.js");
 
-        document.addEventListener('keydown', function (e) {
-            if (!startOverlay || startOverlay.classList.contains('hidden')) return;
+            resizeCanvasToFullScreen();
 
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                startExperience();
-            }
-        });
+            if (startOverlay) {
+                startOverlay.classList.add('hidden');
+            }
+        }
 
-        /*
-          Love timer
-        */
-        const startTime = new Date('2025-10-29T17:52:00+07:00');
+        if (startButton) {
+            startButton.addEventListener('click', startExperience);
+        }
 
-        function updateLoveTimer() {
-            const now = new Date();
-            let diffSeconds = Math.floor((now - startTime) / 1000);
+        document.addEventListener('keydown', function (e) {
+            if (!startOverlay || startOverlay.classList.contains('hidden')) return;
 
-            if (diffSeconds < 0) diffSeconds = 0;
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                startExperience();
+            }
+        });
 
-            const days = Math.floor(diffSeconds / (24 * 60 * 60));
-            diffSeconds %= 24 * 60 * 60;
+        /*
+          Love timer
+        */
+        const startTime = new Date('2025-10-29T17:52:00+07:00');
 
-            const hours = Math.floor(diffSeconds / (60 * 60));
-            diffSeconds %= 60 * 60;
+        function updateLoveTimer() {
+            const now = new Date();
+            let diffSeconds = Math.floor((now - startTime) / 1000);
 
-            const minutes = Math.floor(diffSeconds / 60);
-            const seconds = diffSeconds % 60;
+            if (diffSeconds < 0) diffSeconds = 0;
 
-            const timerLabel = document.getElementById('timer-label');
-            const timerEl = document.getElementById('love-timer');
+            const days = Math.floor(diffSeconds / (24 * 60 * 60));
+            diffSeconds %= 24 * 60 * 60;
 
-            if (timerLabel) {
-                timerLabel.textContent = '???';
-            }
+            const hours = Math.floor(diffSeconds / (60 * 60));
+            diffSeconds %= 60 * 60;
 
-            if (timerEl) {
-                timerEl.textContent =
-                    days + ' hari ' +
-                    hours + ' jam ' +
-                    minutes + ' menit ' +
-                    seconds + ' detik';
-            }
-        }
+            const minutes = Math.floor(diffSeconds / 60);
+            const seconds = diffSeconds % 60;
 
-        updateLoveTimer();
-        setInterval(updateLoveTimer, 1000);
+            const timerLabel = document.getElementById('timer-label');
+            const timerEl = document.getElementById('love-timer');
 
-        /*
-          Countdown harian ke jam 18:00 WIB.
-        */
-        function updateCountdown2025() {
-            const now = new Date();
-            const target = new Date();
-            target.setHours(18, 0, 0, 0);
+            if (timerLabel) {
+                timerLabel.textContent = '???';
+            }
 
-            const countdownEl = document.getElementById('countdown-2025');
-            if (!countdownEl) return;
+            if (timerEl) {
+                timerEl.textContent =
+                    days + ' hari ' +
+                    hours + ' jam ' +
+                    minutes + ' menit ' +
+                    seconds + ' detik';
+            }
+        }
 
-            let diffMs = target - now;
+        updateLoveTimer();
+        setInterval(updateLoveTimer, 1000);
 
-            if (diffMs <= 0) {
-                countdownEl.textContent = "Otw meet: The day has come. ❤️";
-                return;
-            }
+        /*
+          Countdown harian ke jam 18:00 WIB.
+        */
+        function updateCountdown2025() {
+            const now = new Date();
 
-            const totalSeconds = Math.floor(diffMs / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
+            const target = new Date();
+            target.setHours(18, 0, 0, 0);
 
-            countdownEl.textContent =
-                "Otw meet: " +
-                hours + " jam " +
-                minutes + " menit " +
-                seconds + " detik";
-        }
+            const countdownEl = document.getElementById('countdown-2025');
+            if (!countdownEl) return;
 
-        updateCountdown2025();
-        setInterval(updateCountdown2025, 1000);
-    </script>
+            let diffMs = target - now;
+
+            if (diffMs <= 0) {
+                countdownEl.textContent = "Otw meet: The day has come. ❤️";
+                return;
+            }
+
+            const totalSeconds = Math.floor(diffMs / 1000);
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            countdownEl.textContent =
+                "Otw meet: " +
+                hours + " jam " +
+                minutes + " menit " +
+                seconds + " detik";
+        }
+
+        updateCountdown2025();
+        setInterval(updateCountdown2025, 1000);
+    </script>
+
 </body>
 
 </html>
