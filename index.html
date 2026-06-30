@@ -439,6 +439,26 @@
                 document.body.appendChild(script);
             });
         }
+        
+            async function startExperience() {
+            if (hasStarted) return;
+            hasStarted = true;
+
+            resizeCanvasToFullScreen();
+
+            if (startButton) {
+                startButton.disabled = true;
+            }
+
+            if (bgMusic) {
+                try {
+                    bgMusic.currentTime = 0;
+                    await bgMusic.play();
+                } catch (err) {
+                    console.log("Audio gagal diputar:", err);
+                }
+            }
+
 
             await loadScript("js/index.js");
             await loadScript("js/heart.js");
